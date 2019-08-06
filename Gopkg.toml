@@ -27,6 +27,10 @@ ignored = [
   revision = "v0.5.0"
 
 [[constraint]]
+  name = "github.com/envoyproxy/data-plane-api"
+  revision = "1fc1f69dcaef7980421d362e11e895897450bcaf"
+
+[[constraint]]
   name = "github.com/gambol99/go-marathon"
   revision = "v0.7.1"
 

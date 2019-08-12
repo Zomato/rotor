@@ -337,6 +337,9 @@ func findHostPort(
 	}
 	if carn != "" {
 		viable := []int{}
+		if len(c.NetworkInterfaces) > 0 {
+			return destPort, nil
+		}
 		for _, nb := range c.NetworkBindings {
 			cp := int(ptr.Int64Value(nb.ContainerPort))
 			hp := int(ptr.Int64Value(nb.HostPort))
@@ -362,6 +365,12 @@ func findHostPort(
 	return 0, fmt.Errorf("could not bind to port %d in container '%s'", destPort, carn)
 }
 
+func getIP(ec2inst ec2Instance,c *ecs.Container) string{
+	if len(c.NetworkInterfaces) > 0 {
+		return ptr.StringValue(c.NetworkInterfaces[0].PrivateIpv4Address)
+	}
+	return ptr.StringValue(ec2inst.PrivateIpAddress)
+}
 // bindClusters takes a snapshot of an ECS environment (one or more clusters)
 // and a set of metadata describing potential API cluster instances (c.f.
 // containerBindTemplate docs). Clusters and instances are produced using the following
@@ -465,11 +474,10 @@ func bindClusters(clusterTag string, state ecsState, tmpls []containerBindTempla
 					continue
 				}
 
-				// ...with an IP address
-				ec2Host := ptr.StringValue(ec2inst.PrivateIpAddress)
-
 				// grab the container our template is for out of the task instance
 				container := tinst.getContainer(tmpl.container)
+				// ...with an IP address
+				HostIP := getIP(ec2inst,container)
 				if container == nil {
 					missing(
 						tmpl.cluster,
@@ -491,7 +499,7 @@ func bindClusters(clusterTag string, state ecsState, tmpls []containerBindTempla
 
 				c.Instances = append(
 					c.Instances,
-					mkInstance(clusterTag, ec2id, ec2Host, hostPort, tmpl, ciarn, tarn))
+					mkInstance(clusterTag, ec2id, HostIP, hostPort, tmpl, ciarn, tarn))
 			}
 		}
 	}

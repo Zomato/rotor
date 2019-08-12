@@ -481,8 +481,8 @@ func bindClusters(clusterTag string, state ecsState, tmpls []containerBindTempla
 
 				// grab the container our template is for out of the task instance
 				container := tinst.getContainer(tmpl.container)
-				// ...with an IP address
-				HostIP := getIP(ec2inst,container)
+				// gets the ip address to be used for communicating with enovy container
+				containerIP := getIP(ec2inst,container)
 				if container == nil {
 					missing(
 						tmpl.cluster,
@@ -504,7 +504,7 @@ func bindClusters(clusterTag string, state ecsState, tmpls []containerBindTempla
 
 				c.Instances = append(
 					c.Instances,
-					mkInstance(clusterTag, ec2id, HostIP, hostPort, tmpl, ciarn, tarn))
+					mkInstance(clusterTag, ec2id, containerIP, hostPort, tmpl, ciarn, tarn))
 			}
 		}
 	}

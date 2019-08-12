@@ -65,7 +65,7 @@ func fetchClusters(
 	clusters := make([]*envoyapi.Cluster, len(res.GetResources()))
 	for idx, any := range res.GetResources() {
 		c := &envoyapi.Cluster{}
-		if err := types.UnmarshalAny(&any, c); err != nil {
+		if err := types.UnmarshalAny(any, c); err != nil {
 			return nil, err
 		}
 
@@ -102,7 +102,7 @@ func asClusterResolver(es endpointService, rf requestFactory) collector.ClusterR
 		default:
 			any := res.GetResources()[0]
 			cla = &envoyapi.ClusterLoadAssignment{}
-			if err := types.UnmarshalAny(&any, cla); err != nil {
+			if err := types.UnmarshalAny(any, cla); err != nil {
 				return nil, []error{err}
 			}
 		}

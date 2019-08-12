@@ -200,13 +200,13 @@ func (s rds) mkEnvoyRouteConfig(
 	domainConfigs []domainConfig,
 	objects *poller.Objects,
 ) (*envoyapi.RouteConfiguration, error) {
-	virtualHosts := []envoyroute.VirtualHost{}
+	virtualHosts := []*envoyroute.VirtualHost{}
 	for _, domainConfig := range domainConfigs {
 		virtualHost, err := mkEnvoyVirtualHost(domainConfig, objects)
 		if err != nil {
 			return nil, err
 		}
-		virtualHosts = append(virtualHosts, *virtualHost)
+		virtualHosts = append(virtualHosts, virtualHost)
 	}
 
 	return &envoyapi.RouteConfiguration{
@@ -268,7 +268,9 @@ func mkEnvoyCorsPolicy(corsConfig *tbnapi.CorsConfig) *envoyroute.CorsPolicy {
 		ExposeHeaders:    strings.Join(corsConfig.ExposedHeaders, ","),
 		MaxAge:           fmt.Sprintf("%d", corsConfig.MaxAge),
 		AllowCredentials: boolValue(corsConfig.AllowCredentials),
-		Enabled:          boolValue(true),
+		EnabledSpecifier: &envoyroute.CorsPolicy_Enabled{
+                        Enabled:          boolValue(true),
+                },
 	}
 }
 
@@ -294,7 +296,7 @@ func resolveTLSRequirement(
 func mkEnvoyRoutes(
 	domainConfig domainConfig,
 	objects *poller.Objects,
-) ([]envoyroute.Route, error) {
+) ([]*envoyroute.Route, error) {
 	routes := tbnRedirectToEnvoyRoutes(domainConfig.Domain)
 
 	prefixRoutes, err := tbnToEnvoyRoutes(domainConfig, objects)
@@ -312,8 +314,8 @@ func mkEnvoyRoutes(
 //   - using nginx style variables(e.g. '$host')
 // this method ensures we provide envoy with a valid route by stripping
 // capture groups and resolving nginx variables.
-func tbnRedirectToEnvoyRoutes(domain tbnapi.Domain) []envoyroute.Route {
-	routes := []envoyroute.Route{}
+func tbnRedirectToEnvoyRoutes(domain tbnapi.Domain) []*envoyroute.Route {
+	routes := []*envoyroute.Route{}
 	for _, redirect := range domain.Redirects {
 		url, err := url.Parse(redirect.To)
 		if err != nil {
@@ -349,7 +351,9 @@ func tbnRedirectToEnvoyRoutes(domain tbnapi.Domain) []envoyroute.Route {
 			ResponseCode: responseCode,
 		}
 		if url.Scheme == "https" {
-			redirectAction.HttpsRedirect = true
+			redirectAction.SchemeRewriteSpecifier =  &envoyroute.RedirectAction_HttpsRedirect{
+                                HttpsRedirect: true,
+                        }
 		}
 
 		pathRewrite := scrubCaptureGroups(path)
@@ -360,7 +364,7 @@ func tbnRedirectToEnvoyRoutes(domain tbnapi.Domain) []envoyroute.Route {
 		}
 
 		route := envoyroute.Route{
-			Match: envoyroute.RouteMatch{
+			Match: &envoyroute.RouteMatch{
 				PathSpecifier: &envoyroute.RouteMatch_Regex{Regex: redirect.From},
 				CaseSensitive: boolValue(false),
 				Headers:       toEnvoyHeaderMatcher(domain, redirect),
@@ -370,7 +374,7 @@ func tbnRedirectToEnvoyRoutes(domain tbnapi.Domain) []envoyroute.Route {
 			},
 		}
 
-		routes = append(routes, route)
+		routes = append(routes, &route)
 	}
 
 	return routes
@@ -426,8 +430,8 @@ func valueOrDefault(s string) string {
 func tbnToEnvoyRoutes(
 	domainConfig domainConfig,
 	objects *poller.Objects,
-) ([]envoyroute.Route, error) {
-	routes := []envoyroute.Route{}
+) ([]*envoyroute.Route, error) {
+	routes := []*envoyroute.Route{}
 
 	for _, routeConfig := range domainConfig.Routes {
 		re := routeExploder{domainConfig, routeConfig, objects.ClusterFromKey}
@@ -459,30 +463,7 @@ func tbnToEnvoyRoutes(
 					ClusterSpecifier: &envoyroute.RouteAction_WeightedClusters{
 						WeightedClusters: weightedCluster,
 					},
-					RequestHeadersToAdd: []*envoycore.HeaderValueOption{
-						{
-							Header: &envoycore.HeaderValue{
-								Key:   headerRouteKey,
-								Value: valueOrDefault(string(routeConfig.Route.RouteKey)),
-							},
-							Append: boolValue(false),
-						},
-						{
-							Header: &envoycore.HeaderValue{
-								Key:   headerRuleKey,
-								Value: valueOrDefault(string(rv.RuleKey)),
-							},
-							Append: boolValue(false),
-						},
-						{
-							Header: &envoycore.HeaderValue{
-								Key:   headerSharedRulesKey,
-								Value: valueOrDefault(rv.SharedRulesName),
-							},
-							Append: boolValue(false),
-						},
-					},
-					RetryPolicy: &envoyroute.RouteAction_RetryPolicy{
+					RetryPolicy: &envoyroute.RetryPolicy{
 						RetryOn:       rdsRetryOn,
 						NumRetries:    uint32Value(uint32(rp.NumRetries)),
 						PerTryTimeout: ptr.Duration(time.Duration(rp.PerTryTimeoutMsec) * time.Millisecond),
@@ -491,7 +472,31 @@ func tbnToEnvoyRoutes(
 				},
 			}
 
-			routes = append(routes, envoyroute.Route{Match: match, Action: action})
+                        requestHeadersToAdd := []*envoycore.HeaderValueOption{
+                                                 {
+                                                         Header: &envoycore.HeaderValue{
+                                                                 Key:   headerRouteKey,
+                                                                 Value: valueOrDefault(string(routeConfig.Route.RouteKey)),
+                                                         },
+                                                         Append: boolValue(false),
+                                                 },
+                                                 {
+                                                         Header: &envoycore.HeaderValue{
+                                                                 Key:   headerRuleKey,
+                                                                 Value: valueOrDefault(string(rv.RuleKey)),
+                                                         },
+                                                         Append: boolValue(false),
+                                                 },
+                                                 {
+                                                         Header: &envoycore.HeaderValue{
+                                                                 Key:   headerSharedRulesKey,
+                                                                 Value: valueOrDefault(rv.SharedRulesName),
+                                                         },
+                                                         Append: boolValue(false),
+                                                 },
+                                         }
+
+			routes = append(routes, &envoyroute.Route{Match: &match, Action: action,RequestHeadersToAdd: requestHeadersToAdd})
 		}
 	}
 

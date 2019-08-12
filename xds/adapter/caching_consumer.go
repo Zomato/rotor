@@ -17,6 +17,7 @@ limitations under the License.
 package adapter
 
 import (
+        "context"
 	"strings"
 	"sync"
 	"time"
@@ -188,8 +189,9 @@ func (c registeringCachingConsumer) Consume(objs *poller.Objects) error {
 
 // OnStreamOpen implements
 // go-control-plane/pkg/server/Callbacks.OnStreamOpen
-func (c registeringCachingConsumer) OnStreamOpen(streamID int64, streamType string) {
+func (c registeringCachingConsumer) OnStreamOpen(ctx context.Context, streamID int64, streamType string) error {
 	console.Debug().Println("stream open: ", streamID, streamType)
+        return nil
 }
 
 // OnStreamClosed implements
@@ -203,9 +205,10 @@ func (c registeringCachingConsumer) OnStreamClosed(streamID int64) {
 
 // OnStreamRequest implements
 // go-control-plane/pkg/server/Callbacks.OnStreamRequest
-func (c registeringCachingConsumer) OnStreamRequest(streamID int64, req *v2.DiscoveryRequest) {
+func (c registeringCachingConsumer) OnStreamRequest(streamID int64, req *v2.DiscoveryRequest) error {
 	c.streamRefs.Add(streamID, proxyRefFromNode(req.GetNode()))
 	c.onRequest(streamID, req)
+        return nil
 }
 
 // OnStreamResponse implements
@@ -221,8 +224,9 @@ func (c registeringCachingConsumer) OnStreamResponse(
 
 // OnFetchRequest implements
 // go-control-plane/pkg/server/Callbacks.OnFetchRequest
-func (c registeringCachingConsumer) OnFetchRequest(req *v2.DiscoveryRequest) {
+func (c registeringCachingConsumer) OnFetchRequest(ctx context.Context, req *v2.DiscoveryRequest) error {
 	c.onRequest(-1, req)
+        return nil
 }
 
 func (c registeringCachingConsumer) onRequest(streamID int64, req *v2.DiscoveryRequest) {

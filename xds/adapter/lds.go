@@ -72,15 +72,15 @@ func (s lds) inject(l *envoyapi.Listener) error {
 		return nil
 	}
 	for i := range l.FilterChains {
-		fc := &l.FilterChains[i]
+		fc := l.FilterChains[i]
 		for j := range fc.Filters {
-			f := &fc.Filters[j]
+			f := fc.Filters[j]
 			if f.Name != util.HTTPConnectionManager {
 				continue
 			}
 
 			httpFilter := &envoyhcm.HttpConnectionManager{}
-			if err := util.StructToMessage(f.Config, httpFilter); err != nil {
+			if err := util.StructToMessage(f.GetConfig(), httpFilter); err != nil {
 				console.Error().Printf(
 					"failed to deserialize HttpConnectionManager for listener %q: %s",
 					l.GetName(),
@@ -100,7 +100,7 @@ func (s lds) inject(l *envoyapi.Listener) error {
 					}
 
 					router := &envoyrouter.Router{}
-					if err := util.StructToMessage(hf.Config, router); err != nil {
+					if err := util.StructToMessage(hf.GetConfig(), router); err != nil {
 						console.Error().Printf(
 							"failed to deserialize router for listener %q: %s",
 							l.GetName(),
@@ -111,13 +111,16 @@ func (s lds) inject(l *envoyapi.Listener) error {
 
 					router.UpstreamLog = append(router.UpstreamLog, upstreamLog)
 
-					if hf.Config, err = util.MessageToStruct(router); err != nil {
+                                        var hfConfig *types.Struct
+					if hfConfig, err = util.MessageToStruct(router); err != nil {
 						console.Error().Printf(
 							"failed to serialize router for listener %q: %s",
 							l.GetName(),
 							err,
 						)
 					}
+
+                                        hf.ConfigType = &envoyhcm.HttpFilter_Config{Config: hfConfig}
 				}
 			}
 
@@ -133,7 +136,7 @@ func (s lds) inject(l *envoyapi.Listener) error {
 			if routeConfig != nil {
 				console.Debug().Printf("installing domain and route headers for listener %q", l.GetName())
 				for k := range routeConfig.VirtualHosts {
-					vh := &routeConfig.VirtualHosts[k]
+					vh := routeConfig.VirtualHosts[k]
 
 					host, port, err := hostPortForListener(l)
 					addr := host
@@ -152,7 +155,7 @@ func (s lds) inject(l *envoyapi.Listener) error {
 					)
 
 					for m := range vh.Routes {
-						rt := &vh.Routes[m]
+						rt := vh.Routes[m]
 						match := rt.GetMatch()
 						var routeStr string
 						switch {
@@ -169,23 +172,26 @@ func (s lds) inject(l *envoyapi.Listener) error {
 						}
 
 						if rt.GetRoute() != nil {
-							rt.GetRoute().RequestHeadersToAdd = addHeaderIfMissing(
+							rt.RequestHeadersToAdd = addHeaderIfMissing(
 								headerRouteKey,
 								addr+routeStr,
-								rt.GetRoute().RequestHeadersToAdd,
+								rt.GetRequestHeadersToAdd(),
 							)
 						}
 					}
 				}
 			}
 
-			if f.Config, err = util.MessageToStruct(httpFilter); err != nil {
+                        var filterConfig *types.Struct
+			if filterConfig , err = util.MessageToStruct(httpFilter); err != nil {
 				console.Error().Printf(
 					"failed to serialize HttpConnectionManager for Listener %q: %s",
 					l.GetName(),
 					err,
 				)
 			}
+
+                        f.ConfigType = &envoylistener.Filter_Config{Config: filterConfig}
 		}
 	}
 
@@ -355,7 +361,9 @@ func mkGRPCAccessLog(id string, cluster string, format log.Format) (*envoylog.Ac
 
 	return &envoylog.AccessLog{
 		Name:   util.HTTPGRPCAccessLog,
-		Config: grpcAccessLog,
+                ConfigType: &envoylog.AccessLog_Config{
+                        Config: grpcAccessLog,
+                },
 	}, nil
 }
 
@@ -440,17 +448,21 @@ func (s lds) mkHTTPConnectionManager(
 		HttpFilters: []*envoyhcm.HttpFilter{
 			{
 				Name:   util.CORS,
-				Config: &types.Struct{},
+				ConfigType: &envoyhcm.HttpFilter_Config{
+                                        Config: &types.Struct{},
+                                },
 			},
 			{
 				Name:   util.Router,
-				Config: router,
+				ConfigType: &envoyhcm.HttpFilter_Config{
+                                        Config: router,
+                                },
 			},
 		},
 		RouteSpecifier: &envoyhcm.HttpConnectionManager_Rds{
 			Rds: &envoyhcm.Rds{
 				RouteConfigName: mkListenerName(proxyName, port),
-				ConfigSource:    xdsClusterConfig,
+				ConfigSource:    &xdsClusterConfig,
 			},
 		},
 		Tracing:   tracing,
@@ -473,9 +485,9 @@ func (s lds) mkListener(
 	}
 
 	var (
-		lfs               []envoylistener.ListenerFilter
+		lfs               []*envoylistener.ListenerFilter
 		nonSSLFilterChain *envoylistener.FilterChain
-		sslFilterChains   []envoylistener.FilterChain
+		sslFilterChains   []*envoylistener.FilterChain
 	)
 
 	for _, d := range domains {
@@ -485,9 +497,11 @@ func (s lds) mkListener(
 			var certs []*envoyauth.TlsCertificate
 
 			if len(lfs) == 0 {
-				lfs = append(lfs, envoylistener.ListenerFilter{
+				lfs = append(lfs, &envoylistener.ListenerFilter{
 					Name:   "envoy.listener.tls_inspector",
-					Config: &types.Struct{},
+					ConfigType: &envoylistener.ListenerFilter_Config{
+                                                Config: &types.Struct{},
+                                        },
 				})
 			}
 
@@ -516,15 +530,17 @@ func (s lds) mkListener(
 				return nil, err
 			}
 
-			sslFilterChains = append(sslFilterChains, envoylistener.FilterChain{
+			sslFilterChains = append(sslFilterChains, &envoylistener.FilterChain{
 				FilterChainMatch: &envoylistener.FilterChainMatch{
 					ServerNames: []string{d.Name},
 				},
 				TlsContext: tlsContext,
-				Filters: []envoylistener.Filter{
+				Filters: []*envoylistener.Filter{
 					{
 						Name:   util.HTTPConnectionManager,
-						Config: httpFilter,
+                                                ConfigType: &envoylistener.Filter_Config{
+					                Config: httpFilter,
+				                },
 					},
 				},
 			})
@@ -543,10 +559,12 @@ func (s lds) mkListener(
 				FilterChainMatch: &envoylistener.FilterChainMatch{
 					ServerNames: []string{d.Name},
 				},
-				Filters: []envoylistener.Filter{
+				Filters: []*envoylistener.Filter{
 					{
 						Name:   util.HTTPConnectionManager,
-						Config: httpFilter,
+                                                ConfigType: &envoylistener.Filter_Config{
+					                Config: httpFilter,
+				                },
 					},
 				},
 			}
@@ -567,15 +585,15 @@ func (s lds) mkListener(
 
 	addr := mkEnvoyAddress("0.0.0.0", port)
 
-	var filterChains []envoylistener.FilterChain
+	var filterChains []*envoylistener.FilterChain
 	if nonSSLFilterChain != nil {
-		filterChains = []envoylistener.FilterChain{*nonSSLFilterChain}
+		filterChains = []*envoylistener.FilterChain{nonSSLFilterChain}
 	}
 	filterChains = append(filterChains, sslFilterChains...)
 
 	return &envoyapi.Listener{
 		Name:            name,
-		Address:         *addr,
+		Address:         addr,
 		ListenerFilters: lfs,
 		FilterChains:    filterChains,
 	}, nil
@@ -586,7 +604,7 @@ func (s lds) mkListener(
 // may still be populated.
 func hostPortForListener(l *envoyapi.Listener) (string, int, error) {
 	if l == nil {
-		return "", 0, errors.New("could not lookup port for nil listener")
+		return "", 1, errors.New("could not lookup port for nil listener")
 	}
 
 	addr := l.GetAddress()

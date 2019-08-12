@@ -17,6 +17,7 @@ limitations under the License.
 package adapter
 
 import (
+        "context"
 	"sync"
 	"time"
 
@@ -130,9 +131,12 @@ func (c *cachingConsumerStats) completeResponse(
 
 // OnStreamOpen implements
 // go-control-plane/pkg/server/Callbacks.OnStreamOpen
-func (c *cachingConsumerStats) OnStreamOpen(streamID int64, typeURL string) {
+func (c *cachingConsumerStats) OnStreamOpen(ctx context.Context, streamID int64, typeURL string) error {
 	defer c.streamState.remove(streamID)
-	c.cachingConsumer.OnStreamOpen(streamID, typeURL)
+	if err := c.cachingConsumer.OnStreamOpen(ctx, streamID, typeURL); err != nil {
+                return err
+        }
+        return nil
 }
 
 // OnStreamClosed implements
@@ -144,9 +148,12 @@ func (c *cachingConsumerStats) OnStreamClosed(streamID int64) {
 
 // OnStreamRequest implements
 // go-control-plane/pkg/server/Callbacks.OnStreamRequest
-func (c *cachingConsumerStats) OnStreamRequest(streamID int64, req *envoyapi.DiscoveryRequest) {
+func (c *cachingConsumerStats) OnStreamRequest(streamID int64, req *envoyapi.DiscoveryRequest) error {
 	defer c.startRequest(streamID, req)
-	c.cachingConsumer.OnStreamRequest(streamID, req)
+	if err := c.cachingConsumer.OnStreamRequest(streamID, req); err != nil {
+                return err
+        }
+        return nil
 }
 
 // OnStreamResponse implements
@@ -162,9 +169,12 @@ func (c cachingConsumerStats) OnStreamResponse(
 
 // OnFetchRequest implements
 // go-control-plane/pkg/server/Callbacks.OnFetchRequest
-func (c *cachingConsumerStats) OnFetchRequest(req *envoyapi.DiscoveryRequest) {
+func (c *cachingConsumerStats) OnFetchRequest(ctx context.Context, req *envoyapi.DiscoveryRequest) error {
 	defer c.startRequest(fetchStream, req)
-	c.cachingConsumer.OnFetchRequest(req)
+	if err := c.cachingConsumer.OnFetchRequest(ctx, req); err != nil {
+                return err
+        }
+        return nil
 }
 
 // OnFetchResponse implements

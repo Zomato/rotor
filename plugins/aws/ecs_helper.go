@@ -365,12 +365,17 @@ func findHostPort(
 	return 0, fmt.Errorf("could not bind to port %d in container '%s'", destPort, carn)
 }
 
+
+// getIP returns the ipaddress required to communicate with the container.
+// It uses the PrivateIP of the attached NetworkInterface. If there is no
+// NetworkInterface attached, it returns the ip address of the ec2 instance (in case of bridge network)
 func getIP(ec2inst ec2Instance,c *ecs.Container) string{
 	if len(c.NetworkInterfaces) > 0 {
 		return ptr.StringValue(c.NetworkInterfaces[0].PrivateIpv4Address)
 	}
 	return ptr.StringValue(ec2inst.PrivateIpAddress)
 }
+
 // bindClusters takes a snapshot of an ECS environment (one or more clusters)
 // and a set of metadata describing potential API cluster instances (c.f.
 // containerBindTemplate docs). Clusters and instances are produced using the following

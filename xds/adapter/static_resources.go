@@ -209,7 +209,7 @@ func (ff *resFromFlags) Make() (staticResourcesProvider, error) {
 }
 
 func validateStaticResources(res staticResources) error {
-	if res.clusterTemplate != nil && res.clusterTemplate.Type != envoyapi.Cluster_EDS {
+	if res.clusterTemplate != nil && res.clusterTemplate.GetType() != envoyapi.Cluster_EDS {
 		return errors.New("cluster template must be of type EDS")
 	}
 	m := newListenerMap(true)

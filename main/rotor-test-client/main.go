@@ -117,7 +117,7 @@ func (r *runner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 	names := []string{}
 	for _, any := range res.GetResources() {
 		c := &envoyapi.Cluster{}
-		if err := types.UnmarshalAny(&any, c); err != nil {
+		if err := types.UnmarshalAny(any, c); err != nil {
 			return cmd.Error(err)
 		}
 		names = append(names, c.GetName())
@@ -154,7 +154,7 @@ func (r *runner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 	names = []string{}
 	for _, any := range res.GetResources() {
 		l := &envoyapi.Listener{}
-		if err := types.UnmarshalAny(&any, l); err != nil {
+		if err := types.UnmarshalAny(any, l); err != nil {
 			return cmd.Error(err)
 		}
 		names = append(names, l.GetName())

@@ -3,17 +3,17 @@
 
 package v2
 
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-import v2 "github.com/envoyproxy/go-control-plane/envoy/data/accesslog/v2"
-import _ "github.com/lyft/protoc-gen-validate/validate"
-
-import context "golang.org/x/net/context"
-import grpc "google.golang.org/grpc"
-
-import io "io"
+import (
+	context "context"
+	fmt "fmt"
+	core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	v2 "github.com/envoyproxy/go-control-plane/envoy/data/accesslog/v2"
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	io "io"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -37,7 +37,7 @@ func (m *StreamAccessLogsResponse) Reset()         { *m = StreamAccessLogsRespon
 func (m *StreamAccessLogsResponse) String() string { return proto.CompactTextString(m) }
 func (*StreamAccessLogsResponse) ProtoMessage()    {}
 func (*StreamAccessLogsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_als_60e1116a58a1b3de, []int{0}
+	return fileDescriptor_e4f3a3a69261b513, []int{0}
 }
 func (m *StreamAccessLogsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -54,8 +54,8 @@ func (m *StreamAccessLogsResponse) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (dst *StreamAccessLogsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAccessLogsResponse.Merge(dst, src)
+func (m *StreamAccessLogsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamAccessLogsResponse.Merge(m, src)
 }
 func (m *StreamAccessLogsResponse) XXX_Size() int {
 	return m.Size()
@@ -71,7 +71,7 @@ var xxx_messageInfo_StreamAccessLogsResponse proto.InternalMessageInfo
 type StreamAccessLogsMessage struct {
 	// Identifier data that will only be sent in the first message on the stream. This is effectively
 	// structured metadata and is a performance optimization.
-	Identifier *StreamAccessLogsMessage_Identifier `protobuf:"bytes,1,opt,name=identifier" json:"identifier,omitempty"`
+	Identifier *StreamAccessLogsMessage_Identifier `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
 	// Batches of log entries of a single type. Generally speaking, a given stream should only
 	// ever include one type of log entry.
 	//
@@ -88,7 +88,7 @@ func (m *StreamAccessLogsMessage) Reset()         { *m = StreamAccessLogsMessage
 func (m *StreamAccessLogsMessage) String() string { return proto.CompactTextString(m) }
 func (*StreamAccessLogsMessage) ProtoMessage()    {}
 func (*StreamAccessLogsMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_als_60e1116a58a1b3de, []int{1}
+	return fileDescriptor_e4f3a3a69261b513, []int{1}
 }
 func (m *StreamAccessLogsMessage) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -105,8 +105,8 @@ func (m *StreamAccessLogsMessage) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (dst *StreamAccessLogsMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAccessLogsMessage.Merge(dst, src)
+func (m *StreamAccessLogsMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamAccessLogsMessage.Merge(m, src)
 }
 func (m *StreamAccessLogsMessage) XXX_Size() int {
 	return m.Size()
@@ -124,10 +124,10 @@ type isStreamAccessLogsMessage_LogEntries interface {
 }
 
 type StreamAccessLogsMessage_HttpLogs struct {
-	HttpLogs *StreamAccessLogsMessage_HTTPAccessLogEntries `protobuf:"bytes,2,opt,name=http_logs,json=httpLogs,oneof"`
+	HttpLogs *StreamAccessLogsMessage_HTTPAccessLogEntries `protobuf:"bytes,2,opt,name=http_logs,json=httpLogs,proto3,oneof"`
 }
 type StreamAccessLogsMessage_TcpLogs struct {
-	TcpLogs *StreamAccessLogsMessage_TCPAccessLogEntries `protobuf:"bytes,3,opt,name=tcp_logs,json=tcpLogs,oneof"`
+	TcpLogs *StreamAccessLogsMessage_TCPAccessLogEntries `protobuf:"bytes,3,opt,name=tcp_logs,json=tcpLogs,proto3,oneof"`
 }
 
 func (*StreamAccessLogsMessage_HttpLogs) isStreamAccessLogsMessage_LogEntries() {}
@@ -237,7 +237,7 @@ func _StreamAccessLogsMessage_OneofSizer(msg proto.Message) (n int) {
 
 type StreamAccessLogsMessage_Identifier struct {
 	// The node sending the access log messages over the stream.
-	Node *core.Node `protobuf:"bytes,1,opt,name=node" json:"node,omitempty"`
+	Node *core.Node `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
 	// The friendly name of the log configured in :ref:`CommonGrpcAccessLogConfig
 	// <envoy_api_msg_config.accesslog.v2.CommonGrpcAccessLogConfig>`.
 	LogName              string   `protobuf:"bytes,2,opt,name=log_name,json=logName,proto3" json:"log_name,omitempty"`
@@ -250,7 +250,7 @@ func (m *StreamAccessLogsMessage_Identifier) Reset()         { *m = StreamAccess
 func (m *StreamAccessLogsMessage_Identifier) String() string { return proto.CompactTextString(m) }
 func (*StreamAccessLogsMessage_Identifier) ProtoMessage()    {}
 func (*StreamAccessLogsMessage_Identifier) Descriptor() ([]byte, []int) {
-	return fileDescriptor_als_60e1116a58a1b3de, []int{1, 0}
+	return fileDescriptor_e4f3a3a69261b513, []int{1, 0}
 }
 func (m *StreamAccessLogsMessage_Identifier) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -267,8 +267,8 @@ func (m *StreamAccessLogsMessage_Identifier) XXX_Marshal(b []byte, deterministic
 		return b[:n], nil
 	}
 }
-func (dst *StreamAccessLogsMessage_Identifier) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAccessLogsMessage_Identifier.Merge(dst, src)
+func (m *StreamAccessLogsMessage_Identifier) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamAccessLogsMessage_Identifier.Merge(m, src)
 }
 func (m *StreamAccessLogsMessage_Identifier) XXX_Size() int {
 	return m.Size()
@@ -295,7 +295,7 @@ func (m *StreamAccessLogsMessage_Identifier) GetLogName() string {
 
 // Wrapper for batches of HTTP access log entries.
 type StreamAccessLogsMessage_HTTPAccessLogEntries struct {
-	LogEntry             []*v2.HTTPAccessLogEntry `protobuf:"bytes,1,rep,name=log_entry,json=logEntry" json:"log_entry,omitempty"`
+	LogEntry             []*v2.HTTPAccessLogEntry `protobuf:"bytes,1,rep,name=log_entry,json=logEntry,proto3" json:"log_entry,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
 	XXX_sizecache        int32                    `json:"-"`
@@ -309,7 +309,7 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) String() string {
 }
 func (*StreamAccessLogsMessage_HTTPAccessLogEntries) ProtoMessage() {}
 func (*StreamAccessLogsMessage_HTTPAccessLogEntries) Descriptor() ([]byte, []int) {
-	return fileDescriptor_als_60e1116a58a1b3de, []int{1, 1}
+	return fileDescriptor_e4f3a3a69261b513, []int{1, 1}
 }
 func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -326,8 +326,8 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) XXX_Marshal(b []byte, det
 		return b[:n], nil
 	}
 }
-func (dst *StreamAccessLogsMessage_HTTPAccessLogEntries) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAccessLogsMessage_HTTPAccessLogEntries.Merge(dst, src)
+func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamAccessLogsMessage_HTTPAccessLogEntries.Merge(m, src)
 }
 func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) XXX_Size() int {
 	return m.Size()
@@ -348,7 +348,7 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) GetLogEntry() []*v2.HTTPA
 // [#not-implemented-hide:]
 // Wrapper for batches of TCP access log entries.
 type StreamAccessLogsMessage_TCPAccessLogEntries struct {
-	LogEntry             []*v2.TCPAccessLogEntry `protobuf:"bytes,1,rep,name=log_entry,json=logEntry" json:"log_entry,omitempty"`
+	LogEntry             []*v2.TCPAccessLogEntry `protobuf:"bytes,1,rep,name=log_entry,json=logEntry,proto3" json:"log_entry,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
 	XXX_unrecognized     []byte                  `json:"-"`
 	XXX_sizecache        int32                   `json:"-"`
@@ -362,7 +362,7 @@ func (m *StreamAccessLogsMessage_TCPAccessLogEntries) String() string {
 }
 func (*StreamAccessLogsMessage_TCPAccessLogEntries) ProtoMessage() {}
 func (*StreamAccessLogsMessage_TCPAccessLogEntries) Descriptor() ([]byte, []int) {
-	return fileDescriptor_als_60e1116a58a1b3de, []int{1, 2}
+	return fileDescriptor_e4f3a3a69261b513, []int{1, 2}
 }
 func (m *StreamAccessLogsMessage_TCPAccessLogEntries) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -379,8 +379,8 @@ func (m *StreamAccessLogsMessage_TCPAccessLogEntries) XXX_Marshal(b []byte, dete
 		return b[:n], nil
 	}
 }
-func (dst *StreamAccessLogsMessage_TCPAccessLogEntries) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAccessLogsMessage_TCPAccessLogEntries.Merge(dst, src)
+func (m *StreamAccessLogsMessage_TCPAccessLogEntries) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamAccessLogsMessage_TCPAccessLogEntries.Merge(m, src)
 }
 func (m *StreamAccessLogsMessage_TCPAccessLogEntries) XXX_Size() int {
 	return m.Size()
@@ -406,6 +406,45 @@ func init() {
 	proto.RegisterType((*StreamAccessLogsMessage_TCPAccessLogEntries)(nil), "envoy.service.accesslog.v2.StreamAccessLogsMessage.TCPAccessLogEntries")
 }
 
+func init() {
+	proto.RegisterFile("envoy/service/accesslog/v2/als.proto", fileDescriptor_e4f3a3a69261b513)
+}
+
+var fileDescriptor_e4f3a3a69261b513 = []byte{
+	// 490 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0x41, 0x8b, 0xd3, 0x40,
+	0x14, 0xc7, 0xf7, 0xa5, 0xbb, 0x6e, 0xfa, 0x7a, 0x29, 0xe3, 0x42, 0x4b, 0x90, 0x52, 0x96, 0x05,
+	0x8b, 0x42, 0x02, 0x59, 0xc1, 0x9b, 0xb0, 0x11, 0xb1, 0x0b, 0xba, 0x94, 0xb4, 0x27, 0x0f, 0x2e,
+	0xb3, 0xc9, 0x33, 0x46, 0xd3, 0x4c, 0xc8, 0x0c, 0xc1, 0x1e, 0xbd, 0x89, 0x47, 0x0f, 0x7e, 0x03,
+	0xbf, 0x83, 0x78, 0xda, 0xa3, 0x47, 0x3f, 0x82, 0xf4, 0xb6, 0xdf, 0x42, 0x26, 0xc9, 0x46, 0xed,
+	0xb6, 0x82, 0xbd, 0x85, 0x99, 0xf7, 0xff, 0xfd, 0xe6, 0xcd, 0xcb, 0xe0, 0x11, 0xa5, 0x85, 0x58,
+	0x38, 0x92, 0xf2, 0x22, 0x0e, 0xc8, 0xe1, 0x41, 0x40, 0x52, 0x26, 0x22, 0x72, 0x0a, 0xd7, 0xe1,
+	0x89, 0xb4, 0xb3, 0x5c, 0x28, 0xc1, 0xac, 0xb2, 0xca, 0xae, 0xab, 0xec, 0xa6, 0xca, 0x2e, 0x5c,
+	0xeb, 0x4e, 0x45, 0xe0, 0x59, 0xac, 0x33, 0x81, 0xc8, 0xc9, 0xb9, 0xe0, 0x92, 0xaa, 0xa4, 0x75,
+	0xb7, 0xda, 0x0d, 0xb9, 0xe2, 0x2b, 0xf0, 0x86, 0x51, 0x15, 0xf6, 0x0a, 0x9e, 0xc4, 0x21, 0x57,
+	0xe4, 0x5c, 0x7f, 0x54, 0x1b, 0x87, 0x16, 0xf6, 0xa7, 0x2a, 0x27, 0x3e, 0x3f, 0x29, 0x13, 0xcf,
+	0x44, 0x24, 0x7d, 0x92, 0x99, 0x48, 0x25, 0x1d, 0x7e, 0xd9, 0xc3, 0xde, 0xea, 0xe6, 0x73, 0x92,
+	0x92, 0x47, 0xc4, 0x5e, 0x22, 0xc6, 0x21, 0xa5, 0x2a, 0x7e, 0x15, 0x53, 0xde, 0x87, 0x21, 0x8c,
+	0x3a, 0xee, 0x23, 0x7b, 0x73, 0x23, 0xf6, 0x06, 0x90, 0x7d, 0xda, 0x50, 0xfc, 0x3f, 0x88, 0x2c,
+	0xc2, 0xf6, 0x6b, 0xa5, 0xb2, 0xf3, 0x44, 0x44, 0xb2, 0x6f, 0x94, 0xf8, 0xf1, 0x36, 0xf8, 0xf1,
+	0x6c, 0x36, 0x69, 0x56, 0x9f, 0xa4, 0x2a, 0x8f, 0x49, 0x8e, 0x77, 0x7c, 0x53, 0xc3, 0x75, 0x1d,
+	0x0b, 0xd1, 0x54, 0x41, 0xed, 0x69, 0x95, 0x9e, 0xa7, 0xdb, 0x78, 0x66, 0x8f, 0xd7, 0x69, 0xf6,
+	0x55, 0x50, 0x5a, 0xac, 0xb7, 0x88, 0xbf, 0x1b, 0x65, 0x0f, 0x71, 0x37, 0x15, 0x21, 0xd5, 0xd7,
+	0xd6, 0xab, 0x7d, 0x3c, 0x8b, 0xb5, 0x41, 0xcf, 0xd8, 0x3e, 0x13, 0x21, 0x79, 0xf8, 0xed, 0xea,
+	0xb2, 0xb5, 0xf7, 0x11, 0x8c, 0x2e, 0xf8, 0x65, 0x80, 0x1d, 0xa1, 0x99, 0x88, 0xe8, 0x3c, 0xe5,
+	0x73, 0x2a, 0x2f, 0xa5, 0xed, 0xb5, 0x75, 0xcd, 0x6e, 0x6e, 0x0c, 0xc1, 0xdf, 0x4f, 0x44, 0x74,
+	0xc6, 0xe7, 0x64, 0x25, 0x78, 0xb0, 0xae, 0x6d, 0x36, 0xc3, 0xb6, 0x4e, 0x53, 0xaa, 0xf2, 0x45,
+	0x1f, 0x86, 0xad, 0x51, 0xc7, 0xbd, 0x5f, 0xbb, 0xf5, 0x1f, 0xf4, 0x77, 0xa3, 0x37, 0x08, 0x8b,
+	0xfa, 0x3c, 0x9f, 0xc0, 0x30, 0xc1, 0xd7, 0xe7, 0x28, 0x57, 0xad, 0x37, 0x78, 0x7b, 0x4d, 0xf3,
+	0x6c, 0x7a, 0x53, 0x76, 0x6f, 0xa3, 0x6c, 0x15, 0xb0, 0xc1, 0xe5, 0x1d, 0x60, 0xe7, 0x1a, 0xaa,
+	0x1d, 0x7b, 0x5f, 0xaf, 0x2e, 0x5b, 0xe0, 0x7e, 0x06, 0xec, 0x36, 0xf1, 0x69, 0x35, 0x35, 0xf6,
+	0x1e, 0xb0, 0xbb, 0x3a, 0x2c, 0x76, 0xbc, 0xc5, 0x68, 0xad, 0x07, 0xff, 0x13, 0x6a, 0x1e, 0xcf,
+	0xce, 0x08, 0xbc, 0xd3, 0xef, 0xcb, 0x01, 0xfc, 0x58, 0x0e, 0xe0, 0xe7, 0x72, 0x00, 0x38, 0x8a,
+	0x45, 0x45, 0xca, 0x72, 0xf1, 0x6e, 0xf1, 0x0f, 0xa8, 0x67, 0x9e, 0x24, 0x72, 0xa2, 0x9f, 0xe7,
+	0x04, 0x5e, 0x18, 0x85, 0xfb, 0x01, 0xe0, 0xe2, 0x56, 0xf9, 0x5c, 0x8f, 0x7f, 0x05, 0x00, 0x00,
+	0xff, 0xff, 0x87, 0x3d, 0x75, 0x5d, 0x52, 0x04, 0x00, 0x00,
+}
+
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
 var _ grpc.ClientConn
@@ -414,8 +453,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for AccessLogService service
-
+// AccessLogServiceClient is the client API for AccessLogService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AccessLogServiceClient interface {
 	// Envoy will connect and send StreamAccessLogsMessage messages forever. It does not expect any
 	// response to be sent as nothing would be done in the case of failure. The server should
@@ -468,8 +508,7 @@ func (x *accessLogServiceStreamAccessLogsClient) CloseAndRecv() (*StreamAccessLo
 	return m, nil
 }
 
-// Server API for AccessLogService service
-
+// AccessLogServiceServer is the server API for AccessLogService service.
 type AccessLogServiceServer interface {
 	// Envoy will connect and send StreamAccessLogsMessage messages forever. It does not expect any
 	// response to be sent as nothing would be done in the case of failure. The server should
@@ -724,6 +763,9 @@ func encodeVarintAls(dAtA []byte, offset int, v uint64) int {
 	return offset + 1
 }
 func (m *StreamAccessLogsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.XXX_unrecognized != nil {
@@ -733,6 +775,9 @@ func (m *StreamAccessLogsResponse) Size() (n int) {
 }
 
 func (m *StreamAccessLogsMessage) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Identifier != nil {
@@ -749,6 +794,9 @@ func (m *StreamAccessLogsMessage) Size() (n int) {
 }
 
 func (m *StreamAccessLogsMessage_HttpLogs) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.HttpLogs != nil {
@@ -758,6 +806,9 @@ func (m *StreamAccessLogsMessage_HttpLogs) Size() (n int) {
 	return n
 }
 func (m *StreamAccessLogsMessage_TcpLogs) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.TcpLogs != nil {
@@ -767,6 +818,9 @@ func (m *StreamAccessLogsMessage_TcpLogs) Size() (n int) {
 	return n
 }
 func (m *StreamAccessLogsMessage_Identifier) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Node != nil {
@@ -784,6 +838,9 @@ func (m *StreamAccessLogsMessage_Identifier) Size() (n int) {
 }
 
 func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.LogEntry) > 0 {
@@ -799,6 +856,9 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) Size() (n int) {
 }
 
 func (m *StreamAccessLogsMessage_TCPAccessLogEntries) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.LogEntry) > 0 {
@@ -841,7 +901,7 @@ func (m *StreamAccessLogsResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -862,6 +922,9 @@ func (m *StreamAccessLogsResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthAls
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthAls
 			}
 			if (iNdEx + skippy) > l {
@@ -892,7 +955,7 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -920,7 +983,7 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -929,6 +992,9 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -953,7 +1019,7 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -962,6 +1028,9 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -985,7 +1054,7 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -994,6 +1063,9 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1010,6 +1082,9 @@ func (m *StreamAccessLogsMessage) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthAls
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthAls
 			}
 			if (iNdEx + skippy) > l {
@@ -1040,7 +1115,7 @@ func (m *StreamAccessLogsMessage_Identifier) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -1068,7 +1143,7 @@ func (m *StreamAccessLogsMessage_Identifier) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1077,6 +1152,9 @@ func (m *StreamAccessLogsMessage_Identifier) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1101,7 +1179,7 @@ func (m *StreamAccessLogsMessage_Identifier) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1111,6 +1189,9 @@ func (m *StreamAccessLogsMessage_Identifier) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1123,6 +1204,9 @@ func (m *StreamAccessLogsMessage_Identifier) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthAls
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthAls
 			}
 			if (iNdEx + skippy) > l {
@@ -1153,7 +1237,7 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) Unmarshal(dAtA []byte) er
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -1181,7 +1265,7 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) Unmarshal(dAtA []byte) er
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1190,6 +1274,9 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) Unmarshal(dAtA []byte) er
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1205,6 +1292,9 @@ func (m *StreamAccessLogsMessage_HTTPAccessLogEntries) Unmarshal(dAtA []byte) er
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthAls
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthAls
 			}
 			if (iNdEx + skippy) > l {
@@ -1235,7 +1325,7 @@ func (m *StreamAccessLogsMessage_TCPAccessLogEntries) Unmarshal(dAtA []byte) err
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -1263,7 +1353,7 @@ func (m *StreamAccessLogsMessage_TCPAccessLogEntries) Unmarshal(dAtA []byte) err
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1272,6 +1362,9 @@ func (m *StreamAccessLogsMessage_TCPAccessLogEntries) Unmarshal(dAtA []byte) err
 				return ErrInvalidLengthAls
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthAls
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1287,6 +1380,9 @@ func (m *StreamAccessLogsMessage_TCPAccessLogEntries) Unmarshal(dAtA []byte) err
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthAls
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthAls
 			}
 			if (iNdEx + skippy) > l {
@@ -1356,8 +1452,11 @@ func skipAls(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			iNdEx += length
 			if length < 0 {
+				return 0, ErrInvalidLengthAls
+			}
+			iNdEx += length
+			if iNdEx < 0 {
 				return 0, ErrInvalidLengthAls
 			}
 			return iNdEx, nil
@@ -1388,6 +1487,9 @@ func skipAls(dAtA []byte) (n int, err error) {
 					return 0, err
 				}
 				iNdEx = start + next
+				if iNdEx < 0 {
+					return 0, ErrInvalidLengthAls
+				}
 			}
 			return iNdEx, nil
 		case 4:
@@ -1406,41 +1508,3 @@ var (
 	ErrInvalidLengthAls = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowAls   = fmt.Errorf("proto: integer overflow")
 )
-
-func init() {
-	proto.RegisterFile("envoy/service/accesslog/v2/als.proto", fileDescriptor_als_60e1116a58a1b3de)
-}
-
-var fileDescriptor_als_60e1116a58a1b3de = []byte{
-	// 470 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0x41, 0x8b, 0xd3, 0x40,
-	0x14, 0xc7, 0xf7, 0xa5, 0x5b, 0xb7, 0x7d, 0xbd, 0x94, 0xd9, 0x85, 0x96, 0x20, 0xa5, 0x2c, 0x0b,
-	0x16, 0x85, 0x04, 0xb2, 0x82, 0x37, 0xc1, 0x8a, 0x58, 0x41, 0x17, 0x49, 0x7b, 0xf2, 0xe0, 0x32,
-	0x9b, 0x3c, 0x63, 0x34, 0xcd, 0x84, 0xcc, 0x10, 0xe8, 0xd1, 0x9b, 0x78, 0xf4, 0xe0, 0x37, 0xf0,
-	0x3b, 0x88, 0xa7, 0x3d, 0x7a, 0xf4, 0x23, 0x48, 0x6f, 0xfb, 0x2d, 0x64, 0x26, 0xd9, 0xa8, 0xdd,
-	0xe6, 0x60, 0x6f, 0x61, 0xe6, 0xfd, 0x7f, 0xbf, 0x79, 0xf3, 0x32, 0x78, 0x42, 0x69, 0x21, 0x56,
-	0xae, 0xa4, 0xbc, 0x88, 0x03, 0x72, 0x79, 0x10, 0x90, 0x94, 0x89, 0x88, 0xdc, 0xc2, 0x73, 0x79,
-	0x22, 0x9d, 0x2c, 0x17, 0x4a, 0x30, 0xdb, 0x54, 0x39, 0x55, 0x95, 0x53, 0x57, 0x39, 0x85, 0x67,
-	0xdf, 0x2e, 0x09, 0x3c, 0x8b, 0x75, 0x26, 0x10, 0x39, 0xb9, 0x17, 0x5c, 0x52, 0x99, 0xb4, 0xef,
-	0x94, 0xbb, 0x21, 0x57, 0x7c, 0x03, 0x5e, 0x33, 0xca, 0xc2, 0x41, 0xc1, 0x93, 0x38, 0xe4, 0x8a,
-	0xdc, 0xeb, 0x8f, 0x72, 0xe3, 0xd8, 0xc6, 0xe1, 0x5c, 0xe5, 0xc4, 0x97, 0x8f, 0x4c, 0xe2, 0xb9,
-	0x88, 0xa4, 0x4f, 0x32, 0x13, 0xa9, 0xa4, 0xe3, 0xaf, 0x6d, 0x1c, 0x6c, 0x6e, 0xbe, 0x20, 0x29,
-	0x79, 0x44, 0xec, 0x35, 0x62, 0x1c, 0x52, 0xaa, 0xe2, 0x37, 0x31, 0xe5, 0x43, 0x18, 0xc3, 0xa4,
-	0xe7, 0x3d, 0x74, 0x9a, 0x1b, 0x71, 0x1a, 0x40, 0xce, 0xb3, 0x9a, 0xe2, 0xff, 0x45, 0x64, 0x11,
-	0x76, 0xdf, 0x2a, 0x95, 0x9d, 0x27, 0x22, 0x92, 0x43, 0xcb, 0xe0, 0x67, 0xbb, 0xe0, 0x67, 0x8b,
-	0xc5, 0xcb, 0x7a, 0xf5, 0x49, 0xaa, 0xf2, 0x98, 0xe4, 0x6c, 0xcf, 0xef, 0x68, 0xb8, 0xae, 0x63,
-	0x21, 0x76, 0x54, 0x50, 0x79, 0x5a, 0xc6, 0xf3, 0x74, 0x17, 0xcf, 0xe2, 0xf1, 0x36, 0xcd, 0x81,
-	0x0a, 0x8c, 0xc5, 0x7e, 0x8f, 0xf8, 0xa7, 0x51, 0xf6, 0x00, 0xf7, 0x53, 0x11, 0x52, 0x75, 0x6d,
-	0x83, 0xca, 0xc7, 0xb3, 0x58, 0x1b, 0xf4, 0x8c, 0x9d, 0x33, 0x11, 0xd2, 0x14, 0xbf, 0x5f, 0x5d,
-	0xb6, 0xda, 0x9f, 0xc0, 0xea, 0x83, 0x6f, 0x02, 0xec, 0x04, 0x3b, 0x89, 0x88, 0xce, 0x53, 0xbe,
-	0x24, 0x73, 0x29, 0xdd, 0x69, 0x57, 0xd7, 0xec, 0xe7, 0xd6, 0x18, 0xfc, 0x83, 0x44, 0x44, 0x67,
-	0x7c, 0x49, 0x76, 0x82, 0x47, 0xdb, 0xda, 0x66, 0x0b, 0xec, 0xea, 0x34, 0xa5, 0x2a, 0x5f, 0x0d,
-	0x61, 0xdc, 0x9a, 0xf4, 0xbc, 0x7b, 0x95, 0x5b, 0xff, 0x41, 0xff, 0x36, 0x7a, 0x83, 0xb0, 0xaa,
-	0xce, 0xf3, 0x19, 0xac, 0x0e, 0xf8, 0xfa, 0x1c, 0x66, 0xd5, 0x7e, 0x87, 0x87, 0x5b, 0x9a, 0x67,
-	0xf3, 0x9b, 0xb2, 0xbb, 0x8d, 0xb2, 0x4d, 0x40, 0x83, 0x6b, 0x7a, 0x84, 0xbd, 0x6b, 0xa8, 0x76,
-	0xb4, 0xbf, 0x5d, 0x5d, 0xb6, 0xc0, 0xfb, 0x02, 0xd8, 0xaf, 0xe3, 0xf3, 0x72, 0x6a, 0xec, 0x03,
-	0x60, 0x7f, 0x73, 0x58, 0xec, 0x74, 0x87, 0xd1, 0xda, 0xf7, 0xff, 0x27, 0x54, 0x3f, 0x9e, 0xbd,
-	0x09, 0x4c, 0x0f, 0x7f, 0xac, 0x47, 0xf0, 0x73, 0x3d, 0x82, 0x5f, 0xeb, 0x11, 0xbc, 0xb2, 0x0a,
-	0xef, 0x23, 0xc0, 0xc5, 0x2d, 0xf3, 0xf0, 0x4e, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff, 0x1e, 0x3e,
-	0x77, 0x93, 0x1c, 0x04, 0x00, 0x00,
-}

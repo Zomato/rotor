@@ -54,7 +54,7 @@ func (e eds) adapt(objects *poller.Objects) (cache.Resources, error) {
 func (e eds) tbnClusterToEnvoyLoadAssignment(
 	tbnCluster tbnapi.Cluster,
 ) (*envoyapi.ClusterLoadAssignment, error) {
-	lbEndpoints := []envoyendpoint.LbEndpoint{}
+	lbEndpoints := []*envoyendpoint.LbEndpoint{}
 	for _, instance := range tbnCluster.Instances {
 		if e.resolveDNS == nil {
 			lbEndpoints = append(
@@ -77,22 +77,24 @@ func (e eds) tbnClusterToEnvoyLoadAssignment(
 
 	return &envoyapi.ClusterLoadAssignment{
 		ClusterName: tbnCluster.Name,
-		Endpoints:   []envoyendpoint.LocalityLbEndpoints{{LbEndpoints: lbEndpoints}},
+		Endpoints:   []*envoyendpoint.LocalityLbEndpoints{{LbEndpoints: lbEndpoints}},
 	}, nil
 }
 
-func mkEnvoyLbEndpoint(host string, port int, metadata tbnapi.Metadata) envoyendpoint.LbEndpoint {
-	return envoyendpoint.LbEndpoint{
-		Endpoint: &envoyendpoint.Endpoint{
-			Address: mkEnvoyAddress(host, port),
-		},
+func mkEnvoyLbEndpoint(host string, port int, metadata tbnapi.Metadata) *envoyendpoint.LbEndpoint {
+	return &envoyendpoint.LbEndpoint{
+                HostIdentifier: &envoyendpoint.LbEndpoint_Endpoint{
+		        Endpoint: &envoyendpoint.Endpoint{
+		                Address: mkEnvoyAddress(host, port),
+		        },
+                },
 		HealthStatus: envoycore.HealthStatus_HEALTHY,
 		Metadata:     toEnvoyMetadata(metadata),
 	}
 }
 
 func envoyEndpointsToTbnInstances(
-	lles []envoyendpoint.LocalityLbEndpoints,
+	lles []*envoyendpoint.LocalityLbEndpoints,
 ) (tbnapi.Instances, []error) {
 	if len(lles) == 0 {
 		return tbnapi.Instances{}, nil
@@ -102,7 +104,7 @@ func envoyEndpointsToTbnInstances(
 	is := tbnapi.Instances{}
 	for _, lle := range lles {
 		for _, le := range lle.GetLbEndpoints() {
-			i, err := envoyEndpointToTbnInstance(le)
+			i, err := envoyEndpointToTbnInstance(*le)
 			if err != nil {
 				fmtErr := fmt.Errorf(
 					"Error making instances for endpoint %s: %s",

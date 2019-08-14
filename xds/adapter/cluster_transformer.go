@@ -19,14 +19,12 @@ package adapter
 import (
 	"errors"
 	"fmt"
-	"net/http"
 
 	envoyapi "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoycore "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 
 	"github.com/turbinelabs/api"
 	"github.com/turbinelabs/rotor/xds/collector"
-	"github.com/turbinelabs/rotor/xds/collector/v1"
 )
 
 type (
@@ -213,9 +211,6 @@ func newClusterResolver(
 	}
 
 	switch acs.GetApiType() {
-	case envoycore.ApiConfigSource_REST_LEGACY:
-		return v1.NewClusterResolver(i.Host, i.Port, http.DefaultClient.Get), nil
-
 	case envoycore.ApiConfigSource_REST:
 		return asClusterResolver(newRESTEndpointService(i.Key()), rf), nil
 

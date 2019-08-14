@@ -130,14 +130,15 @@ func (s cds) tbnToEnvoyCluster(
 		return nil, err
 	}
 
+        connectTimeout := clusterConnectTimeoutSecs * time.Second
 	return &envoyapi.Cluster{
 		Name: tbnCluster.Name,
-		Type: envoyapi.Cluster_EDS,
+                ClusterDiscoveryType: &envoyapi.Cluster_Type{Type: envoyapi.Cluster_EDS},
 		EdsClusterConfig: &envoyapi.Cluster_EdsClusterConfig{
 			EdsConfig:   &xdsClusterConfig,
 			ServiceName: tbnCluster.Name,
 		},
-		ConnectTimeout:   clusterConnectTimeoutSecs * time.Second,
+		ConnectTimeout:   &connectTimeout,
 		LbPolicy:         envoyapi.Cluster_LEAST_REQUEST,
 		TlsContext:       tlsContext,
 		LbSubsetConfig:   subsetConfig,

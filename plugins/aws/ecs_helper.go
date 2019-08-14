@@ -337,6 +337,9 @@ func findHostPort(
 	}
 	if carn != "" {
 		viable := []int{}
+		if len(c.NetworkInterfaces) > 0 {
+			return destPort, nil
+		}
 		for _, nb := range c.NetworkBindings {
 			cp := int(ptr.Int64Value(nb.ContainerPort))
 			hp := int(ptr.Int64Value(nb.HostPort))
@@ -360,6 +363,17 @@ func findHostPort(
 	}
 
 	return 0, fmt.Errorf("could not bind to port %d in container '%s'", destPort, carn)
+}
+
+
+// getIP returns the ipaddress required to communicate with the container.
+// It uses the PrivateIP of the attached NetworkInterface. If there is no
+// NetworkInterface attached, it returns the ip address of the ec2 instance (in case of bridge network)
+func getIP(ec2inst ec2Instance,c *ecs.Container) string{
+	if len(c.NetworkInterfaces) > 0 {
+		return ptr.StringValue(c.NetworkInterfaces[0].PrivateIpv4Address)
+	}
+	return ptr.StringValue(ec2inst.PrivateIpAddress)
 }
 
 // bindClusters takes a snapshot of an ECS environment (one or more clusters)
@@ -465,11 +479,10 @@ func bindClusters(clusterTag string, state ecsState, tmpls []containerBindTempla
 					continue
 				}
 
-				// ...with an IP address
-				ec2Host := ptr.StringValue(ec2inst.PrivateIpAddress)
-
 				// grab the container our template is for out of the task instance
 				container := tinst.getContainer(tmpl.container)
+				// gets the ip address to be used for communicating with enovy container
+				containerIP := getIP(ec2inst,container)
 				if container == nil {
 					missing(
 						tmpl.cluster,
@@ -491,7 +504,7 @@ func bindClusters(clusterTag string, state ecsState, tmpls []containerBindTempla
 
 				c.Instances = append(
 					c.Instances,
-					mkInstance(clusterTag, ec2id, ec2Host, hostPort, tmpl, ciarn, tarn))
+					mkInstance(clusterTag, ec2id, containerIP, hostPort, tmpl, ciarn, tarn))
 			}
 		}
 	}

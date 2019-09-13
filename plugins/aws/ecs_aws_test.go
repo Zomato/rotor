@@ -123,7 +123,7 @@ func TestSliceWalkBadWindowNegative(t *testing.T) {
 func mkAwsAdapter(t *testing.T) (awsAdapter, *mockEcsInterface, func()) {
 	ctrl := gomock.NewController(assert.Tracing(t))
 	ecs := newMockEcsInterface(ctrl)
-	aws := awsAdapter{ecs, newMockEc2Interface(ctrl), 10, 100}
+	aws := awsAdapter{ecs, newMockEc2Interface(ctrl), 10, 100, 100}
 	return aws, ecs, ctrl.Finish
 }
 

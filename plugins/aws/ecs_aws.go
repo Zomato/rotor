@@ -30,6 +30,7 @@ import (
 const (
 	DescribeServicesWindowSz = 10
 	DescribeTasksWindowSz    = 100
+ 	DescribeContainerInstancesWindowSz = 100
 )
 
 //go:generate $TBN_HOME/scripts/mockgen_internal.sh -type awsClient,ecsInterface,ec2Interface -source $GOFILE -destination mock_$GOFILE -package $GOPACKAGE --write_package_comment=false
@@ -109,12 +110,13 @@ type awsAdapter struct {
 
 	describeServicesWindowSz int
 	describeTasksWindowSz    int
+ 	describeContainerInstancesWindowSz int
 }
 
 var _ awsClient = awsAdapter{}
 
 func newAwsClient(ecs ecsInterface, ec2 ec2Interface) awsClient {
-	return awsAdapter{ecs, ec2, DescribeServicesWindowSz, DescribeTasksWindowSz}
+	return awsAdapter{ecs, ec2, DescribeServicesWindowSz, DescribeTasksWindowSz, DescribeContainerInstancesWindowSz}
 }
 
 var badWindowSize = errors.New("invalid window size")
@@ -316,23 +318,30 @@ func (a awsAdapter) GetContainerInstances(
 
 	dest := map[arn]containerInst{}
 
-	arg := &ecs.DescribeContainerInstancesInput{
-		Cluster: &cluster, ContainerInstances: ptr.StringSlice(argIds)}
-	out, err := a.ecs.DescribeContainerInstances(arg)
-	if err != nil {
-		return nil, fmt.Errorf("unable to load container instance data: %s", err.Error())
-	}
+        cIDs := ptr.StringSlice(argIds)
 
-	for _, f := range out.Failures {
-		console.Error().Printf("%s: %s", ptr.StringValue(f.Arn), ptr.StringValue(f.Reason))
-	}
+        error := sliceWalk(a.describeContainerInstancesWindowSz, cIDs, func(ids []*string) error {
+	        arg := &ecs.DescribeContainerInstancesInput{
+		Cluster: &cluster, ContainerInstances: ids}
+	
+                out, err := a.ecs.DescribeContainerInstances(arg)
+	        if err != nil {
+		        return fmt.Errorf("unable to load container instance data: %s", err.Error())
+	        }
 
-	for _, ci := range out.ContainerInstances {
-		id := arnValue(ci.ContainerInstanceArn)
-		dest[id] = containerInst{ci}
-	}
+	        for _, f := range out.Failures {
+		        console.Error().Printf("%s: %s", ptr.StringValue(f.Arn), ptr.StringValue(f.Reason))
+	        }
 
-	return dest, nil
+	        for _, ci := range out.ContainerInstances {
+		        id := arnValue(ci.ContainerInstanceArn)
+		        dest[id] = containerInst{ci}
+	        }
+
+                return nil
+         })
+
+	return dest, error
 }
 
 func (a awsAdapter) GetEC2Instances(instIDs ...string) (map[string]ec2Instance, error) {

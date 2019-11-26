@@ -19,8 +19,11 @@ COPY --from=golang /go/bin/rotor* /usr/local/bin/
 ADD rotor.sh /usr/local/bin/rotor.sh
 RUN chmod +x /usr/local/bin/rotor.sh
 
+COPY rotor_template.json /rotor_template.json
+COPY start_rotor.sh /start_rotor.sh
+
 # best guess
 EXPOSE 50000
 
 # Use baseimage-docker's init system.
-CMD ["/sbin/my_init", "--", "/usr/local/bin/rotor.sh"]
+CMD ["start_rotor.sh"]

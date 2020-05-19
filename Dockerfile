@@ -1,10 +1,12 @@
-FROM golang:1.10.3 AS golang
+FROM golang:1.14.2 AS golang
+
+# Get go modules
+COPY go.mod /go/src/github.com/turbinelabs/rotor/go.mod
+COPY go.sum /go/src/github.com/turbinelabs/rotor/go.sum
+RUN cd /go/src/github.com/turbinelabs/rotor &&  go mod download && go mod vendor
 
 # Add src
-ADD . /go/src/github.com/turbinelabs/rotor
-
-# Get go deps
-RUN go get github.com/turbinelabs/rotor/...
+COPY . /go/src/github.com/turbinelabs/rotor
 
 # Install binaries
 RUN go install github.com/turbinelabs/rotor/...
@@ -22,7 +24,6 @@ COPY --from=golang /go/bin/rotor* /usr/local/bin/
 ADD rotor.sh /usr/local/bin/rotor.sh
 RUN chmod +x /usr/local/bin/rotor.sh
 
-COPY rotor_template.json /rotor_template.json
 COPY start_rotor.sh /usr/local/bin/start_rotor.sh
 
 # best guess

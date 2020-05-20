@@ -29,6 +29,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/donovanhide/eventsource v0.0.0-20171031113327-3ed64d21fb0b h1:eR1P/A4QMYF2/LpHRhYAts9wyYEtF7qNk/tVNiYCWc8=
 github.com/donovanhide/eventsource v0.0.0-20171031113327-3ed64d21fb0b/go.mod h1:56wL82FO0bfMU5RvfXoIwSOP2ggqqxT+tAfNEIyxuHw=
+github.com/eightnoteight/xstats v0.0.1 h1:1iLUyzizz2QEkMrMLd/nvSeoWawHu9GUR3mLJxssEMs=
+github.com/eightnoteight/xstats v0.0.1/go.mod h1:Df7MhG+Mq13Bj/em7f5zjqtH1gT5O7fwKxyf6ZHlPGw=
 github.com/envoyproxy/go-control-plane v0.8.3 h1:Sqcub1O4SnINoXxNmqbNSeNcZ7O/mkk5jq2Ou6JF7HU=
 github.com/envoyproxy/go-control-plane v0.8.3/go.mod h1:EWRTAFN6uuDZIa6KOuUfrOMJ7ySgXZ44rVKiTWjKe34=
 github.com/envoyproxy/protoc-gen-validate v0.0.0-20190405222122-d6164de49109/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=

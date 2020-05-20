@@ -1,15 +1,17 @@
 FROM golang:1.14.2 AS golang
 
 # Get go modules
+ENV GO111MODULE=on
+WORKDIR /go/src/github.com/turbinelabs/rotor
 COPY go.mod /go/src/github.com/turbinelabs/rotor/go.mod
 COPY go.sum /go/src/github.com/turbinelabs/rotor/go.sum
-RUN cd /go/src/github.com/turbinelabs/rotor &&  go mod download && go mod vendor
+RUN go mod download
 
 # Add src
-COPY . /go/src/github.com/turbinelabs/rotor
+COPY . .
 
 # Install binaries
-RUN go install github.com/turbinelabs/rotor/...
+RUN go install /go/src/github.com/turbinelabs/rotor/...
 
 FROM phusion/baseimage:0.11
 

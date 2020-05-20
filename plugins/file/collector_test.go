@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	fsnotify "gopkg.in/fsnotify.v1"
+	fsnotify "github.com/fsnotify/fsnotify"
 
 	"github.com/turbinelabs/api"
 	"github.com/turbinelabs/codec"

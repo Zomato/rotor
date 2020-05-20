@@ -1,0 +1,39 @@
+{
+  "listeners": [],
+  "clusters": [],
+  "cluster_template": {
+    "type": "EDS",
+    "connect_timeout": "1s",
+    "lb_policy": "ROUND_ROBIN",
+    "eds_cluster_config": {
+      "eds_config": {
+        "api_config_source": {
+          "api_type": "GRPC",
+          "grpc_services": [{
+            "envoy_grpc": {
+              "cluster_name": "tbn-xds"
+            }
+          }]
+        }
+      },
+      "service_name": "ignored"
+    },
+    "max_requests_per_connection": 1000000,
+    "http2_protocol_options": {},
+    "hosts": [],
+    "health_checks": [
+      {
+        "grpc_health_check": {},
+        "timeout": "1s",
+        "interval": "10s",
+        "no_traffic_interval": "60s",
+        "healthy_edge_interval": "3s",
+        "unhealthy_edge_interval": "1s",
+        "interval_jitter": "1s",
+        "unhealthy_threshold": 3,
+        "healthy_threshold": 3,
+        "unhealthy_interval": "1s"
+      }
+    ]
+  }
+}

@@ -10,7 +10,7 @@ require (
 	github.com/donovanhide/eventsource v0.0.0-20171031113327-3ed64d21fb0b // indirect
 	github.com/envoyproxy/go-control-plane v0.8.3
 	github.com/envoyproxy/protoc-gen-validate v0.0.6 // indirect
-	github.com/fsnotify/fsnotify v1.4.7 // indirect
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gambol99/go-marathon v0.7.1
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-ini/ini v1.36.0 // indirect
@@ -50,7 +50,6 @@ require (
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
 	google.golang.org/grpc v1.19.1
-	gopkg.in/fsnotify.v1 v1.4.7
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.56.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
@@ -59,4 +58,4 @@ require (
 	k8s.io/client-go v7.0.0+incompatible
 )
 
-replace gopkg.in/fsnotify.v1 v1.4.7 => github.com/fsnotify/fsnotify v1.4.7
+replace github.com/rs/xstats => github.com/eightnoteight/xstats v0.0.1

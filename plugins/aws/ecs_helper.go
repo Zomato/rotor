@@ -566,7 +566,7 @@ type ecsState struct {
 //
 // Attempts are made to minimize number of round trips by collecting all
 // services within a cluster before requesting definitions.
-func populateMeta(aws awsClient, state *ecsState) error {
+func populateMeta(aws awsECSClient, state *ecsState) error {
 	for _, cluster := range state.meta.clusters {
 		if _, ok := state.meta.services[cluster]; !ok {
 			state.meta.services[cluster] = map[arn]svcDefn{}
@@ -627,7 +627,7 @@ func populateMeta(aws awsClient, state *ecsState) error {
 // and then look up the associated task instance saving the arn -> instance
 // mapping into state.live.taskInstances
 func getRunningTasks(
-	aws awsClient,
+	aws awsECSClient,
 	state *ecsState,
 	currentCluster string,
 ) (map[arn]taskInst, error) {
@@ -669,7 +669,7 @@ func getRunningTasks(
 // a cluster and finds the associated container instances that support them.
 // This data is loaded into the state.live.containerInstances map.
 func getContainerInstances(
-	aws awsClient,
+	aws awsECSClient,
 	state *ecsState,
 	cluster string,
 	clusterTasks map[arn]taskInst,
@@ -702,7 +702,7 @@ func getContainerInstances(
 // getEC2Hosts walks the containers known in state.live.containerInstances and
 // gathers informatino about the associated EC2 hosts on which the containers
 // are executing. The resulting data is stored in state.live.ec2Hosts.
-func getEC2Hosts(aws awsClient, state *ecsState) error {
+func getEC2Hosts(aws awsECSClient, state *ecsState) error {
 	// Now extract all ec2 instance IDs
 	ec2IDs := []string{}
 	for cid, ci := range state.live.containerInstances {
@@ -729,7 +729,7 @@ func getEC2Hosts(aws awsClient, state *ecsState) error {
 // populateMeta and requests all running tasks organizing them to facilitate
 // producing API Cluster instances by binding containerBindTemplate templates
 // running ECS Container instances.
-func populateRunning(aws awsClient, state *ecsState) error {
+func populateRunning(aws awsECSClient, state *ecsState) error {
 	// Collect data across all clusters being queried
 	for _, cluster := range state.meta.clusters {
 		clusterTasks, err := getRunningTasks(aws, state, cluster)
@@ -765,7 +765,7 @@ func emptyECSState() ecsState {
 
 // NewECSState constructs a snapshot view of a collection of clusters within
 // ECS. If errors are hit they are returned with an empty ecsState object.
-func NewECSState(aws awsClient, clusters []string) (ecsState, error) {
+func NewECSState(aws awsECSClient, clusters []string) (ecsState, error) {
 	ecs := emptyECSState()
 
 	// Take the clusters we're examining as a given

@@ -32,11 +32,11 @@ import (
 // clientFromFlags represents the command-line flags specifying configuration of
 // an AWS client and its underlying session.
 type clientFromFlags interface {
-	// MakeEC2Client produces an EC2 interface from a new AWS client session.
-	MakeEC2Client() ec2Interface
+	// MakeAWSEC2Client produces an EC2 interface from a new AWS client session.
+	MakeAWSEC2Client() awsEC2Client
 
-	// MakeAWSClient produces an AWS interface from a new AWS client session.
-	MakeAWSClient() awsClient
+	// MakeAWSECSClient produces an AWS interface from a new AWS client session.
+	MakeAWSECSClient() awsECSClient
 }
 
 // newClientFromFlags produces a clientFromFlags, adding necessary flags to the
@@ -114,11 +114,11 @@ func (ff *clientFromFlagsImpl) awsCredentials() *credentials.Credentials {
 	)
 }
 
-func (ff *clientFromFlagsImpl) MakeEC2Client() ec2Interface {
+func (ff *clientFromFlagsImpl) MakeAWSEC2Client() awsEC2Client {
 	return ec2.New(ff.makeSession())
 }
 
-func (ff *clientFromFlagsImpl) MakeAWSClient() awsClient {
+func (ff *clientFromFlagsImpl) MakeAWSECSClient() awsECSClient {
 	s := ff.makeSession()
 	return newAwsClient(ecs.New(s), ec2.New(s))
 }

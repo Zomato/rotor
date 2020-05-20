@@ -36,7 +36,7 @@ type ecsSettings struct {
 	clusterPortTag string
 }
 
-func (cfg ecsSettings) Validate(aws awsClient) error {
+func (cfg ecsSettings) Validate(aws awsECSClient) error {
 	clusters, err := aws.ListClusters()
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func (r ecsRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 		return cmd.BadInput(err)
 	}
 
-	awsSvc := r.awsFlags.MakeAWSClient()
+	awsSvc := r.awsFlags.MakeAWSECSClient()
 	if err := r.cfg.Validate(awsSvc); err != nil {
 		return cmd.BadInput(err)
 	}
@@ -119,7 +119,7 @@ func (r ecsRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 	return command.NoError()
 }
 
-func ecsGetClustersAction(cfg ecsSettings, aws awsClient) ([]api.Cluster, error) {
+func ecsGetClustersAction(cfg ecsSettings, aws awsECSClient) ([]api.Cluster, error) {
 	state, err := NewECSState(aws, cfg.clusters.Strings)
 	if err != nil {
 		return nil, fmt.Errorf("Could not read ECS state: %v", err.Error())

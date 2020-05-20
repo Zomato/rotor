@@ -148,7 +148,7 @@ func (r *awsRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 
 	c := awsCollector{
 		settings: r.settings,
-		ec2Svc:   r.awsFlags.MakeEC2Client(),
+		ec2Svc:   r.awsFlags.MakeAWSEC2Client(),
 	}
 
 	updater.Loop(u, c.getClusters)
@@ -171,7 +171,7 @@ func (r *awsRunner) processFilters(strs []string) (map[string][]string, error) {
 
 type awsCollector struct {
 	settings awsCollectorSettings
-	ec2Svc   ec2Interface
+	ec2Svc   awsEC2Client
 }
 
 func (c awsCollector) getClusters() ([]api.Cluster, error) {

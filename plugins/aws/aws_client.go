@@ -16,22 +16,22 @@ limitations under the License.
 
 package aws
 
-//go:generate $TBN_HOME/scripts/mockgen_internal.sh -type clientFromFlags -source $GOFILE -destination mock_$GOFILE -package $GOPACKAGE --write_package_comment=false
+//go:generate $TBN_HOME/scripts/mockgen_internal.sh -type client -source $GOFILE -destination mock_$GOFILE -package $GOPACKAGE --write_package_comment=false
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/aws/aws-sdk-go/aws/session"
 	ec2 "github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	tbnflag "github.com/turbinelabs/nonstdlib/flag"
-	"github.com/turbinelabs/nonstdlib/flag/usage"
 )
 
-// clientFromFlags represents the command-line flags specifying configuration of
+// client represents the command-line flags specifying configuration of
 // an AWS client and its underlying session.
-type clientFromFlags interface {
+type client interface {
 	// MakeAWSEC2Client produces an EC2 interface from a new AWS client session.
 	MakeAWSEC2Client() awsEC2Client
 
@@ -39,49 +39,57 @@ type clientFromFlags interface {
 	MakeAWSECSClient() awsECSClient
 }
 
-// newClientFromFlags produces a clientFromFlags, adding necessary flags to the
+// newClientFromFlags produces a client, adding necessary flags to the
 // provided flag.FlagSet.
-func newClientFromFlags(fs tbnflag.FlagSet) clientFromFlags {
-	ff := &clientFromFlagsImpl{}
-
-	fs.StringVar(
-		&ff.awsRegion,
-		"aws.region",
-		"",
-		usage.Required("The AWS region in which the binary is running"),
-	)
-
-	fs.StringVar(
-		&ff.awsSecretAccessKey,
-		"aws.secret-access-key",
-		"",
-		usage.Sensitive("The AWS API secret access key"),
-	)
-
-	fs.StringVar(
-		&ff.awsAccessKeyID,
-		"aws.access-key-id",
-		"",
-		usage.Sensitive("The AWS API access key ID"),
-	)
-
-	return ff
+func newClientFromFlags(fs tbnflag.FlagSet) client {
+	return &clientImpl{}
 }
 
-type clientFromFlagsImpl struct {
+func newAWSECSClientFromConfig(config *ECSAWSConfig) awsECSClient {
+	ff := &clientImpl{}
+
+	ff.awsRegion = config.Region
+	ff.awsSecretAccessKey = config.SecretAccessKey
+	ff.awsAccessKeyID = config.AccessKeyId
+	ff.awsIamRoleToAssume = config.IAMRoleToAssume
+
+	return ff.MakeAWSECSClient()
+}
+
+func newAWSEC2ClientFromConfig(config *EC2AWSConfig) awsEC2Client {
+	ff := &clientImpl{}
+
+	ff.awsRegion = config.Region
+	ff.awsSecretAccessKey = config.SecretAccessKey
+	ff.awsAccessKeyID = config.AccessKeyId
+	ff.awsIamRoleToAssume = config.IAMRoleToAssume
+
+	return ff.MakeAWSEC2Client()
+}
+
+type clientImpl struct {
 	awsRegion          string
 	awsSecretAccessKey string
 	awsAccessKeyID     string
+	awsIamRoleToAssume string
 }
 
-func (ff *clientFromFlagsImpl) makeSession() *session.Session {
-	return session.New(&aws.Config{
+func (ff *clientImpl) makeSession() *session.Session {
+	sessForSTSCreds := session.New(&aws.Config{
 		Region:      aws.String(ff.awsRegion),
 		Credentials: ff.awsCredentials(),
 	})
+
+	creds := stscreds.NewCredentials(sessForSTSCreds, ff.awsIamRoleToAssume)
+	sess := session.New(&aws.Config{
+		Credentials:                       creds,
+		Region:                            aws.String(ff.awsRegion),
+	})
+
+	return sess
 }
 
-func (ff *clientFromFlagsImpl) awsCredentials() *credentials.Credentials {
+func (ff *clientImpl) awsCredentials() *credentials.Credentials {
 	// This gets all the AWS Defaults. They will be merged correctly with
 	// awsSession on the call to `session.New()
 	defaultConfig := defaults.Config()
@@ -114,11 +122,11 @@ func (ff *clientFromFlagsImpl) awsCredentials() *credentials.Credentials {
 	)
 }
 
-func (ff *clientFromFlagsImpl) MakeAWSEC2Client() awsEC2Client {
+func (ff *clientImpl) MakeAWSEC2Client() awsEC2Client {
 	return ec2.New(ff.makeSession())
 }
 
-func (ff *clientFromFlagsImpl) MakeAWSECSClient() awsECSClient {
+func (ff *clientImpl) MakeAWSECSClient() awsECSClient {
 	s := ff.makeSession()
 	return newAwsClient(ecs.New(s), ec2.New(s))
 }

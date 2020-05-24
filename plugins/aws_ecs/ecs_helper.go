@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package aws
+package aws_ecs
 
 import (
 	"errors"
@@ -53,6 +53,10 @@ type ecsMeta struct {
 }
 
 type containerBindTemplate struct {
+	// cfg specifies the settings in which this cluter meta was created. Mostly
+	// it contains the cluster tag and cluster port tags so that we know how to
+	// extract data from labels.
+	cfg ecsSettings
 
 	// the short name cluster
 	cluster string
@@ -158,7 +162,7 @@ func (cbt containerBindTemplate) portMappings(st ecsState) (portMappings, error)
 
 // identifyTaggedItems examines all known containers and return a collection of
 // templates that we can use to construct Turbine Labs cluster instances.
-func (m ecsMeta) identifyTaggedItems(clusterTag string) []containerBindTemplate {
+func (m ecsMeta) identifyTaggedItems(cfg ecsSettings) []containerBindTemplate {
 	result := []containerBindTemplate{}
 	addTmpl := func(cbt containerBindTemplate) { result = append(result, cbt) }
 
@@ -193,7 +197,7 @@ func (m ecsMeta) identifyTaggedItems(clusterTag string) []containerBindTemplate 
 				}
 				labels := cdef.DockerLabels
 				for k := range labels {
-					if k == clusterTag {
+					if k == cfg.clusterTag {
 						lbl := ptr.StringValue(labels[k])
 						s, p, err := parseLabel(lbl)
 						if err != nil {
@@ -201,6 +205,7 @@ func (m ecsMeta) identifyTaggedItems(clusterTag string) []containerBindTemplate 
 							continue
 						}
 						addTmpl(containerBindTemplate{
+							cfg,
 							cluster,
 							svc,
 							tarn,

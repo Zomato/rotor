@@ -32,11 +32,11 @@ import (
 	"github.com/turbinelabs/test/assert"
 )
 
-func mkAwsCollector() awsCollector {
-	return awsCollector{
-		settings: awsCollectorSettings{
-			namespace: "tbn:cluster",
-			delimiter: ":",
+func mkAwsCollector() ec2ClustersProvider {
+	return ec2ClustersProvider{
+		config: EC2ClustersProviderConfig{
+			Namespace: "tbn:cluster",
+			Delimiter: ":",
 		},
 	}
 }
@@ -49,7 +49,6 @@ func TestAWSCmd(t *testing.T) {
 	cmd := AWSCmd(mockUpdaterFromFlags)
 	cmd.Flags.Parse([]string{})
 	runner := cmd.Runner.(*awsRunner)
-	assert.NonNil(t, runner.awsFlags)
 	assert.Equal(t, runner.updaterFlags, mockUpdaterFromFlags)
 }
 
@@ -93,8 +92,7 @@ func TestAWSRunnerRun(t *testing.T) {
 
 	cmd := AWSCmd(mockUpdaterFromFlags)
 	r := cmd.Runner.(*awsRunner)
-	r.awsFlags = mockClientFromFlags
-	r.settings.vpcID = "vpc"
+	r.config.vpcID = "vpc"
 
 	result := make(chan command.CmdErr, 1)
 	go func() {
@@ -166,7 +164,7 @@ func TestAWSRunnerRunMakeUpdaterError(t *testing.T) {
 
 func TestAWSCollectorMkFilters(t *testing.T) {
 	c := mkAwsCollector()
-	c.settings.filters = map[string][]string{
+	c.config.Filters = map[string][]string{
 		"foo": {"bar", "baz"},
 		"1":   {"2"},
 	}
@@ -178,7 +176,7 @@ func TestAWSCollectorMkFilters(t *testing.T) {
 		},
 		{
 			Name:   aws.String("vpc-id"),
-			Values: []*string{aws.String(c.settings.vpcID)},
+			Values: []*string{aws.String(c.config.VpcID)},
 		},
 		{
 			Name:   aws.String("foo"),
@@ -317,7 +315,7 @@ func TestAWSCollectorGetClusters(t *testing.T) {
 		DescribeInstances(&ec2.DescribeInstancesInput{Filters: c.mkFilters()}).
 		Return(&ec2.DescribeInstancesOutput{Reservations: reservations}, nil)
 
-	clusters, err := c.getClusters()
+	clusters, err := c.GetClusters()
 	assert.Nil(t, err)
 	assert.ArrayEqual(
 		t,
@@ -368,7 +366,7 @@ func TestAWSCollectorGetClustersError(t *testing.T) {
 		DescribeInstances(&ec2.DescribeInstancesInput{Filters: c.mkFilters()}).
 		Return(nil, errors.New("boom"))
 
-	clusters, err := c.getClusters()
+	clusters, err := c.GetClusters()
 	assert.Nil(t, clusters)
 	assert.ErrorContains(t, err, "boom")
 }

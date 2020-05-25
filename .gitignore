@@ -3,3 +3,4 @@ examples/ecs/.env
 examples/ecs/cluster_template.json
 test.go
 vendor
+deployment/local/files/local.env

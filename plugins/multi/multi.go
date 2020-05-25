@@ -1,10 +1,10 @@
 package multi
 
 import (
-	"github.com/turbinelabs/api"
 	"github.com/turbinelabs/cli/command"
 	tbnflag "github.com/turbinelabs/nonstdlib/flag"
 	"github.com/turbinelabs/rotor"
+	"github.com/turbinelabs/rotor/pkg/cluster_provider/multi"
 	"github.com/turbinelabs/rotor/updater"
 )
 
@@ -53,13 +53,14 @@ func (r multiRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 		return cmd.Error(err)
 	}
 
-	updater.Loop(u, r.getClusters)
+	m, err := multi.NewMultiClustersProvider(multi.ClustersProviderConfig{
+		ConfigFileLocation:r.configFileLocation,
+	})
+	if err != nil {
+		return cmd.Error(err)
+	}
+	updater.Loop(u, m.GetClusters)
 
 	return command.NoError()
-}
-
-
-func (r multiRunner) getClusters() ([]api.Cluster, error) {
-
 }
 

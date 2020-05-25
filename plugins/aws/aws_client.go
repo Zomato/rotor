@@ -80,6 +80,10 @@ func (ff *clientImpl) makeSession() *session.Session {
 		Credentials: ff.awsCredentials(),
 	})
 
+	if ff.awsIamRoleToAssume == "" {
+		return sessForSTSCreds
+	}
+
 	creds := stscreds.NewCredentials(sessForSTSCreds, ff.awsIamRoleToAssume)
 	sess := session.New(&aws.Config{
 		Credentials:                       creds,

@@ -8,10 +8,16 @@ import (
 	"github.com/turbinelabs/nonstdlib/log/console"
 	"github.com/turbinelabs/rotor/pkg/cluster_provider"
 	"github.com/turbinelabs/rotor/plugins/aws"
-	"github.com/turbinelabs/rotor/plugins/multi"
 	"io/ioutil"
 	"os"
 )
+
+
+type ConfigType string
+
+const EC2ClustersProviderConfigType ConfigType = "EC2ClustersProvider"
+const ECSClustersProviderConfigType ConfigType = "ECSClustersProvider"
+
 
 type multiClustersProvider struct {
 	clusterProviders []cluster_provider.ClusterProvider
@@ -42,7 +48,7 @@ func (m *multiClustersProvider) UnmarshalJSON(data []byte) error {
 
 	for _, v := range t.ClustersProviders {
 		switch v.Type {
-		case string(multi.ECSClustersProviderConfigType):
+		case string(ECSClustersProviderConfigType):
 			c := aws.ECSClustersProviderConfig{
 				Clusters:   []string{},
 				Aws:        aws.ECSAWSConfig{},
@@ -56,7 +62,7 @@ func (m *multiClustersProvider) UnmarshalJSON(data []byte) error {
 				return err
 			}
 			m.clusterProviders = append(m.clusterProviders, cp)
-		case string(multi.EC2ClustersProviderConfigType):
+		case string(EC2ClustersProviderConfigType):
 			c := aws.EC2ClustersProviderConfig{
 				Filters:   map[string][]string {},
 				Aws:       aws.EC2AWSConfig{},
@@ -74,7 +80,7 @@ func (m *multiClustersProvider) UnmarshalJSON(data []byte) error {
 			return errors.New(fmt.Sprintf(
 				"ClustersProviderConfig: unknown cluster provider type: %s, expected: one of %v",
 				v.Type,
-				[]multi.ConfigType{multi.ECSClustersProviderConfigType, multi.EC2ClustersProviderConfigType},
+				[]ConfigType{ECSClustersProviderConfigType, EC2ClustersProviderConfigType},
 			))
 		}
 	}
@@ -122,6 +128,10 @@ func getClustersFromProvider(provider cluster_provider.ClusterProvider, ch chan 
 		clusters: cs,
 		err:      err,
 	}
+}
+
+func (m *multiClustersProvider) String() string {
+	return fmt.Sprintf("MultiClustersProvider{providers=%v}", m.clusterProviders)
 }
 
 func (m *multiClustersProvider) GetClusters() ([]api.Cluster, error) {

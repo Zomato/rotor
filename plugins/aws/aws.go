@@ -164,8 +164,8 @@ func (r *awsRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 		VpcID:     r.config.vpcID,
 		Filters:   filters,
 		Aws:       EC2AWSConfig{
-			Region: r.config.awsRegion,
-			AccessKeyId: r.config.awsAccessKeyId,
+			Region:          r.config.awsRegion,
+			AccessKeyId:     r.config.awsAccessKeyId,
 			SecretAccessKey: r.config.awsSecretAccessKey,
 			IAMRoleToAssume: r.config.awsIAMRoleToAssume,
 		},

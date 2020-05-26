@@ -14,19 +14,19 @@ import (
 import "github.com/turbinelabs/api"
 
 type EC2AWSConfig struct {
-	Region string
-	AccessKeyId string
-	SecretAccessKey string
-	IAMRoleToAssume string
+	Region          string `json:"region"`
+	AccessKeyId     string `json:"access_key_id"`
+	SecretAccessKey string `json:"secret_access_key"`
+	IAMRoleToAssume string `json:"iam_role_to_assume"`
 }
 
 
 type EC2ClustersProviderConfig struct {
-	Namespace   string
-	Delimiter string
-	VpcID string
-	Filters map[string][]string
-	Aws        EC2AWSConfig
+	Namespace string              `json:"namespace"`
+	Delimiter string              `json:"delimiter"`
+	VpcID     string              `json:"vpc_id"`
+	Filters   map[string][]string `json:"filters"`
+	Aws       EC2AWSConfig        `json:"aws"`
 }
 
 type ec2ClustersProvider struct {

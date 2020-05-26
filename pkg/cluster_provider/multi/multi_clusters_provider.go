@@ -123,6 +123,7 @@ func getClustersFromProvider(provider cluster_provider.ClusterProvider, ch chan 
 	}()
 
 	cs, err := provider.GetClusters()
+	console.Debug().Println("ClusterProvider.GetClusters", provider.String(), cs)
 	ch <- pairClustersError{
 		provider: provider,
 		clusters: cs,
@@ -135,6 +136,7 @@ func (m *multiClustersProvider) String() string {
 }
 
 func (m *multiClustersProvider) GetClusters() ([]api.Cluster, error) {
+	console.Debug().Println("MultiClustersProvider.GetClusters:start", m.clusterProviders)
 	var clusters []api.Cluster
 
 	ch := make(chan pairClustersError)
@@ -174,5 +176,6 @@ func (m *multiClustersProvider) GetClusters() ([]api.Cluster, error) {
  	if len(errs) == len(m.clusterProviders) {
  		return nil, errors.New(fmt.Sprintf("%v", errs))
 	}
+	console.Debug().Println("MultiClustersProvider.GetClusters:end", clusters)
  	return clusters, nil
 }

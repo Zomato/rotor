@@ -1,0 +1,40 @@
+{
+  "clusters_providers": [
+    {
+      "type": "ECSClustersProvider",
+      "config": {
+        "clusters": [
+          "{{ cluster1 }}"
+        ],
+        "aws": {
+          "region": "{{ region1 }}",
+          "iam_role_to_assume": "arn:aws:iam::{{ account1 }}:role/rotor-ecs"
+        }
+      }
+    },
+    {
+      "type": "ECSClustersProvider",
+      "config": {
+        "clusters": [
+          "{{ cluster2 }}"
+        ],
+        "aws": {
+          "region": "{{ region2 }}",
+          "iam_role_to_assume": "arn:aws:iam::{{ account2 }}:role/rotor-ecs"
+        }
+      }
+    },
+    {
+      "type": "ECSClustersProvider",
+      "config": {
+        "clusters": [
+          "{{ cluster3 }}"
+        ],
+        "aws": {
+          "region": "{{ region3 }}",
+          "iam_role_to_assume": "arn:aws:iam::{{ account3 }}:role/rotor-ecs"
+        }
+      }
+    }
+  ]
+}

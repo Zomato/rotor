@@ -4,3 +4,5 @@ examples/ecs/cluster_template.json
 test.go
 vendor
 deployment/local/files/local.env
+deployment/local/files/rotor-multi-config.json
+

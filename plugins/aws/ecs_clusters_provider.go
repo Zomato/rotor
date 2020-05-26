@@ -39,6 +39,9 @@ func (e *ecsClusterProvider) String() string {
 }
 
 func NewECSClusterProvider(config ECSClustersProviderConfig) (cluster_provider.ClusterProvider, error) {
+	if config.ClusterTag == "" {
+		config.ClusterTag = ecsDefaultClusterTag
+	}
 	provider := &ecsClusterProvider{
 		config: config,
 		awsClient: newAWSECSClientFromConfig(&config.Aws),

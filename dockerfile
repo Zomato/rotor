@@ -26,10 +26,5 @@ COPY --from=golang /go/bin/rotor* /usr/local/bin/
 ADD rotor.sh /usr/local/bin/rotor.sh
 RUN chmod +x /usr/local/bin/rotor.sh
 
-COPY start_rotor.sh /usr/local/bin/start_rotor.sh
-
 # best guess
 EXPOSE 50000
-
-# Use baseimage-docker's init system.
-CMD ["/usr/local/bin/start_rotor.sh"]

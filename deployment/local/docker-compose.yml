@@ -13,6 +13,11 @@ services:
       context: ../../
       dockerfile: dockerfile
     command:
+      - sh
+      - -c
+      - |
+        envsubst < /rotor_template.json | cat > /cluster_template.json
+        exec /usr/bin/python3 -u /sbin/my_init -- /usr/local/bin/rotor.sh
       - "/usr/local/bin/start_rotor.sh"
     volumes:
       - ./files/cluster-template.json:/rotor_template.json

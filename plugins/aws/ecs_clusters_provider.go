@@ -73,7 +73,6 @@ func (e *ecsClusterProvider) GetClusters() ([]api.Cluster, error) {
 		return nil, fmt.Errorf("Could not read ECS state: %v", err.Error())
 	}
 
-	// super fucking hack
 	tagSet := state.meta.identifyTaggedItems(e.config.ClusterTag)
 	for i := len(tagSet) - 1; i >= 0; i-- {
 		clusterTemplate := tagSet[i]

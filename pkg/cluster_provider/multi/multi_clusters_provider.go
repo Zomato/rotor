@@ -18,9 +18,14 @@ type ConfigType string
 const EC2ClustersProviderConfigType ConfigType = "EC2ClustersProvider"
 const ECSClustersProviderConfigType ConfigType = "ECSClustersProvider"
 
+// preserve the last known snapshot in case of an error
+type snapshottedClustersProvider struct {
+	cluster_provider.ClusterProvider
+	lastSnapshot []api.Cluster
+}
 
 type multiClustersProvider struct {
-	clusterProviders []cluster_provider.ClusterProvider
+	clusterProviders []*snapshottedClustersProvider
 }
 
 
@@ -44,7 +49,7 @@ func (m *multiClustersProvider) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	m.clusterProviders = []cluster_provider.ClusterProvider{}
+	m.clusterProviders = []*snapshottedClustersProvider{}
 
 	for _, v := range t.ClustersProviders {
 		switch v.Type {
@@ -61,7 +66,10 @@ func (m *multiClustersProvider) UnmarshalJSON(data []byte) error {
 			if err != nil {
 				return err
 			}
-			m.clusterProviders = append(m.clusterProviders, cp)
+			m.clusterProviders = append(m.clusterProviders, &snapshottedClustersProvider{
+				ClusterProvider: cp,
+				lastSnapshot:    nil,
+			})
 		case string(EC2ClustersProviderConfigType):
 			c := aws.EC2ClustersProviderConfig{
 				Filters:   map[string][]string {},
@@ -75,7 +83,10 @@ func (m *multiClustersProvider) UnmarshalJSON(data []byte) error {
 			if err != nil {
 				return err
 			}
-			m.clusterProviders = append(m.clusterProviders, cp)
+			m.clusterProviders = append(m.clusterProviders, &snapshottedClustersProvider{
+				ClusterProvider: cp,
+				lastSnapshot:    nil,
+			})
 		default:
 			return errors.New(fmt.Sprintf(
 				"ClustersProviderConfig: unknown cluster provider type: %s, expected: one of %v",
@@ -106,12 +117,12 @@ func NewMultiClustersProvider(config ClustersProviderConfig) (cluster_provider.C
 }
 
 type pairClustersError struct {
-	provider cluster_provider.ClusterProvider
+	provider *snapshottedClustersProvider
 	clusters []api.Cluster
 	err      error
 }
 
-func getClustersFromProvider(provider cluster_provider.ClusterProvider, ch chan pairClustersError) {
+func getClustersFromProvider(sp *snapshottedClustersProvider, ch chan pairClustersError) {
 	defer func() {
 		if r := recover(); r != nil {
 			err := errors.New(fmt.Sprintf("%v", r))
@@ -122,10 +133,10 @@ func getClustersFromProvider(provider cluster_provider.ClusterProvider, ch chan 
 		}
 	}()
 
-	cs, err := provider.GetClusters()
-	console.Debug().Println("ClusterProvider.GetClusters", provider.String(), cs)
+	cs, err := sp.GetClusters()
+	console.Debug().Println("ClusterProvider.GetClusters", sp.String(), cs)
 	ch <- pairClustersError{
-		provider: provider,
+		provider: sp,
 		clusters: cs,
 		err:      err,
 	}
@@ -155,7 +166,14 @@ func (m *multiClustersProvider) GetClusters() ([]api.Cluster, error) {
 				"unable to fetch clusters from cluster provider(%s), error: %v",
 				p.provider.String(), err,
 			)
+			// incase of an error use the last known snapshot
+			if p.provider.lastSnapshot == nil {
+				return nil, err  // first failure will always be a fatal error
+			}
+			cs = p.provider.lastSnapshot
 			errs = append(errs, err)
+		} else {
+			p.provider.lastSnapshot = cs
 		}
 		for _, c := range cs {
 			if _, ok := set[c.Name]; ok {

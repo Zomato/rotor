@@ -42,7 +42,6 @@ func TestECSCmd(t *testing.T) {
 	cmd := ECSCmd(mockUpdaterFromFlags)
 	cmd.Flags.Parse([]string{})
 	runner := cmd.Runner.(*ecsRunner)
-	assert.NonNil(t, runner.awsFlags)
 	assert.Equal(t, runner.updaterFlags, mockUpdaterFromFlags)
 }
 
@@ -72,8 +71,7 @@ func TestECSRunnerRun(t *testing.T) {
 
 	cmd := ECSCmd(mockUpdaterFromFlags)
 	r := cmd.Runner.(*ecsRunner)
-	r.awsFlags = mockClientFromFlags
-	r.cfg.clusters.ResetDefault("cluster")
+	r.ecsConfig.clusters.ResetDefault("cluster")
 
 	result := make(chan command.CmdErr, 1)
 	go func() {
@@ -115,7 +113,6 @@ func TestECSRunnerRunCfgValidateListClustersError(t *testing.T) {
 	mockClientFromFlags.EXPECT().MakeAWSClient().Return(mockAWS)
 
 	er := ecsRunner{
-		awsFlags:     mockClientFromFlags,
 		updaterFlags: mockUpdaterFromFlags,
 	}
 
@@ -137,13 +134,12 @@ func TestECSRunnerRunCfgValidateListClustersNotFound(t *testing.T) {
 	mockClientFromFlags.EXPECT().MakeAWSClient().Return(mockAWS)
 
 	er := ecsRunner{
-		cfg: ecsSettings{
+		ecsConfig: &ECSConfig{
 			clusters: tbnflag.NewStrings(),
 		},
-		awsFlags:     mockClientFromFlags,
 		updaterFlags: mockUpdaterFromFlags,
 	}
-	er.cfg.clusters.ResetDefault("c-is-for-cluster")
+	er.ecsConfig.clusters.ResetDefault("c-is-for-cluster")
 
 	cmdErr := er.Run(ECSCmd(mockUpdaterFromFlags), nil)
 	assert.Equal(t, cmdErr.Message, "ecs: ECS cluster c-is-for-cluster was not found")
@@ -164,13 +160,12 @@ func TestECSRunnerRunMakeUpdaterError(t *testing.T) {
 	mockClientFromFlags.EXPECT().MakeAWSClient().Return(mockAWS)
 
 	er := ecsRunner{
-		cfg: ecsSettings{
+		ecsConfig: &ECSConfig{
 			clusters: tbnflag.NewStrings(),
 		},
-		awsFlags:     mockClientFromFlags,
 		updaterFlags: mockUpdaterFromFlags,
 	}
-	er.cfg.clusters.ResetDefault("cluster")
+	er.ecsConfig.clusters.ResetDefault("cluster")
 
 	cmdErr := er.Run(ECSCmd(mockUpdaterFromFlags), nil)
 	assert.Equal(t, cmdErr.Message, "ecs: no updater for you")
@@ -183,7 +178,7 @@ func TestECSGetClustersActionError(t *testing.T) {
 	mockAWS := newMockAwsClient(ctrl)
 	mockAWS.EXPECT().ListServices("cluster").Return(nil, errors.New("boom"))
 
-	ecsCfg := ecsSettings{
+	ecsCfg := ECSConfig{
 		clusters: tbnflag.NewStrings(),
 	}
 	ecsCfg.clusters.ResetDefault("cluster")
@@ -260,7 +255,7 @@ func TestECSGetClustersAction(t *testing.T) {
 		nil,
 	)
 
-	ecsCfg := ecsSettings{
+	ecsCfg := ECSConfig{
 		clusters:   tbnflag.NewStrings(),
 		clusterTag: "tbn-cluster",
 	}

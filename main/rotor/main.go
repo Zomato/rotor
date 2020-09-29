@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"github.com/turbinelabs/rotor/plugins/multi"
 
 	"github.com/turbinelabs/cli"
 	"github.com/turbinelabs/rotor"
@@ -67,6 +68,7 @@ func mkCLI() cli.CLI {
 		file.Cmd(updaterFlags),
 		kubernetes.Cmd(updaterFlags),
 		marathon.Cmd(updaterFlags),
+		multi.MultiCMD(updaterFlags),
 		nopCmd(updaterFlags),
 	)
 

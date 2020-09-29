@@ -23,7 +23,7 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	fsnotify "gopkg.in/fsnotify.v1"
+	fsnotify "github.com/fsnotify/fsnotify"
 
 	"github.com/turbinelabs/api"
 	"github.com/turbinelabs/nonstdlib/log/console"

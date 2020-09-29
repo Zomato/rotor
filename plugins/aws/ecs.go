@@ -17,45 +17,28 @@ limitations under the License.
 package aws
 
 import (
-	"fmt"
-
-	"github.com/turbinelabs/api"
 	"github.com/turbinelabs/cli/command"
 	tbnflag "github.com/turbinelabs/nonstdlib/flag"
 	"github.com/turbinelabs/nonstdlib/flag/usage"
-	"github.com/turbinelabs/nonstdlib/log/console"
 	"github.com/turbinelabs/rotor"
 	"github.com/turbinelabs/rotor/updater"
 )
 
 const ecsDefaultClusterTag = "tbn-cluster"
 
-type ecsSettings struct {
-	clusters       tbnflag.Strings
-	clusterTag     string
-	clusterPortTag string
-}
-
-func (cfg ecsSettings) Validate(aws awsClient) error {
-	clusters, err := aws.ListClusters()
-	if err != nil {
-		return err
-	}
-
-	for _, c := range cfg.clusters.Strings {
-		if _, match := clusters[c]; !match {
-			return fmt.Errorf("ECS cluster %s was not found", c)
-		}
-	}
-
-	return nil
-}
-
 type ecsRunner struct {
-	cfg ecsSettings
-
-	awsFlags     clientFromFlags
 	updaterFlags rotor.UpdaterFromFlags
+	ecsConfig    *ECSConfig
+}
+
+type ECSConfig struct {
+	clusters tbnflag.Strings
+	clusterTag         string
+	clusterPortTag     string
+		awsRegion          string
+		awsSecretAccessKey string
+		awsAccessKeyId     string
+		awsIAMRoleToAssume string
 }
 
 func ECSCmd(updaterFlags rotor.UpdaterFromFlags) *command.Cmd {
@@ -67,13 +50,14 @@ func ECSCmd(updaterFlags rotor.UpdaterFromFlags) *command.Cmd {
 		Description: ecsDescription,
 		Runner:      runner,
 	}
+	runner.ecsConfig = &ECSConfig{}
 
-	runner.cfg.clusters = tbnflag.NewStrings()
+	runner.ecsConfig.clusters = tbnflag.NewStrings()
 
 	flags := tbnflag.Wrap(&cmd.Flags)
 
 	flags.Var(
-		&runner.cfg.clusters,
+		&runner.ecsConfig.clusters,
 		"clusters",
 		usage.Required(
 			"Specifies a comma separated list indicating which ECS clusters "+
@@ -83,12 +67,39 @@ func ECSCmd(updaterFlags rotor.UpdaterFromFlags) *command.Cmd {
 	)
 
 	flags.StringVar(
-		&runner.cfg.clusterTag,
+		&runner.ecsConfig.clusterTag,
 		"cluster-tag",
 		ecsDefaultClusterTag,
 		"label indicating what API clusters an instance of this container will serve")
 
-	runner.awsFlags = newClientFromFlags(flags)
+	flags.StringVar(
+		&runner.ecsConfig.awsRegion,
+		"aws.region",
+		"",
+		usage.Required("The AWS region in which the binary is running"),
+	)
+
+	flags.StringVar(
+		&runner.ecsConfig.awsSecretAccessKey,
+		"aws.secret-access-key",
+		"",
+		usage.Sensitive("The AWS API secret access key"),
+	)
+
+	flags.StringVar(
+		&runner.ecsConfig.awsAccessKeyId,
+		"aws.access-key-id",
+		"",
+		usage.Sensitive("The AWS API access key ID"),
+	)
+
+	flags.StringVar(
+		&runner.ecsConfig.awsIAMRoleToAssume,
+		"aws.iam-role-to-assume",
+		"",
+		usage.Sensitive("The AWS IAM Role to assume"),
+	)
+
 	runner.updaterFlags = updaterFlags
 
 	return cmd
@@ -99,8 +110,18 @@ func (r ecsRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 		return cmd.BadInput(err)
 	}
 
-	awsSvc := r.awsFlags.MakeAWSClient()
-	if err := r.cfg.Validate(awsSvc); err != nil {
+	clustersProvider, err := NewECSClusterProvider(ECSClustersProviderConfig{
+		Clusters:   r.ecsConfig.clusters.Strings,
+		ClusterTag: r.ecsConfig.clusterTag,
+		Aws:        ECSAWSConfig{
+			Region: r.ecsConfig.awsRegion,
+			AccessKeyId: r.ecsConfig.awsAccessKeyId,
+			SecretAccessKey: r.ecsConfig.awsSecretAccessKey,
+			IAMRoleToAssume: r.ecsConfig.awsIAMRoleToAssume,
+		},
+	})
+
+	if err != nil {
 		return cmd.BadInput(err)
 	}
 
@@ -109,30 +130,7 @@ func (r ecsRunner) Run(cmd *command.Cmd, args []string) command.CmdErr {
 		return cmd.Error(err)
 	}
 
-	updater.Loop(
-		u,
-		func() ([]api.Cluster, error) {
-			return ecsGetClustersAction(r.cfg, awsSvc)
-		},
-	)
+	updater.Loop(u, clustersProvider.GetClusters)
 
 	return command.NoError()
-}
-
-func ecsGetClustersAction(cfg ecsSettings, aws awsClient) ([]api.Cluster, error) {
-	state, err := NewECSState(aws, cfg.clusters.Strings)
-	if err != nil {
-		return nil, fmt.Errorf("Could not read ECS state: %v", err.Error())
-	}
-
-	tagSet := state.meta.identifyTaggedItems(cfg)
-	for i := len(tagSet) - 1; i >= 0; i-- {
-		clusterTemplate := tagSet[i]
-		if err := state.validate(clusterTemplate); err != nil {
-			console.Error().Println(err)
-			tagSet = append(tagSet[:i], tagSet[i+1:]...)
-		}
-	}
-
-	return bindClusters(cfg.clusterTag, state, tagSet), nil
 }

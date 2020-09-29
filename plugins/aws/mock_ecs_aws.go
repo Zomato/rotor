@@ -10,7 +10,7 @@ import (
 	reflect "reflect"
 )
 
-// mockAwsClient is a mock of awsClient interface
+// mockAwsClient is a mock of awsECSClient interface
 type mockAwsClient struct {
 	ctrl     *gomock.Controller
 	recorder *mockAwsClientMockRecorder
@@ -265,7 +265,7 @@ func (mr *mockEcsInterfaceMockRecorder) DescribeContainerInstances(arg0 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeContainerInstances", reflect.TypeOf((*mockEcsInterface)(nil).DescribeContainerInstances), arg0)
 }
 
-// mockEc2Interface is a mock of ec2Interface interface
+// mockEc2Interface is a mock of awsEC2Client interface
 type mockEc2Interface struct {
 	ctrl     *gomock.Controller
 	recorder *mockEc2InterfaceMockRecorder

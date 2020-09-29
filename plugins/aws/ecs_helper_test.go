@@ -381,10 +381,8 @@ container instances:
 */
 
 func TestIdentifyTaggedItems(t *testing.T) {
-	cfg := ecsSettings{clusterTag: tag}
 	expected := []containerBindTemplate{
 		{
-			cfg,
 			cluster1,
 			c1s1arn,
 			task1arn,
@@ -394,7 +392,6 @@ func TestIdentifyTaggedItems(t *testing.T) {
 			t1Def.ContainerDefinitions[0].DockerLabels,
 		},
 		{
-			cfg,
 			cluster1,
 			c1s2arn,
 			task2arn,
@@ -406,7 +403,7 @@ func TestIdentifyTaggedItems(t *testing.T) {
 	}
 
 	// 1. happy path
-	cbt := testECSMeta.identifyTaggedItems(cfg)
+	cbt := testECSMeta.identifyTaggedItems(tag)
 	assert.HasSameElements(t, cbt, expected)
 
 	initialSvcs := testECSMeta.clusterSvcs[cluster1]
@@ -419,7 +416,7 @@ func TestIdentifyTaggedItems(t *testing.T) {
 	newSvcs = append(newSvcs, testSvcArn)
 	testECSMeta.clusterSvcs[cluster1] = newSvcs
 
-	cbt = testECSMeta.identifyTaggedItems(cfg)
+	cbt = testECSMeta.identifyTaggedItems(tag)
 	assert.HasSameElements(t, cbt, expected)
 
 	// 3. unset task definition
@@ -430,12 +427,13 @@ func TestIdentifyTaggedItems(t *testing.T) {
 		TaskDefinition: ptr.String(""),
 	}}
 
-	cbt = testECSMeta.identifyTaggedItems(cfg)
+	cbt = testECSMeta.identifyTaggedItems(tag)
 	assert.HasSameElements(t, cbt, expected)
 
 	// 4. missing task definition
-	testECSMeta.services[cluster1][testSvcArn].TaskDefinition = ptr.String(string(testTaskArn))
-	cbt = testECSMeta.identifyTaggedItems(cfg)
+	s := testECSMeta.services[cluster1][testSvcArn]
+	s.TaskDefinition = ptr.String(string(testTaskArn))
+	cbt = testECSMeta.identifyTaggedItems(tag)
 	assert.HasSameElements(t, cbt, expected)
 
 	// 5. bad label
@@ -455,7 +453,7 @@ func TestIdentifyTaggedItems(t *testing.T) {
 			},
 		},
 	}}
-	cbt = testECSMeta.identifyTaggedItems(cfg)
+	cbt = testECSMeta.identifyTaggedItems(tag)
 	assert.HasSameElements(t, cbt, expected)
 
 	// reset testECSMeta to something expected / good
@@ -467,7 +465,6 @@ func TestIdentifyTaggedItems(t *testing.T) {
 func TestStateValidate(t *testing.T) {
 	base := func() containerBindTemplate {
 		return containerBindTemplate{
-			cfg:       ecsSettings{},
 			cluster:   cluster1,
 			service:   c1s1arn,
 			task:      task1arn,
@@ -616,8 +613,7 @@ func TestFindHostPort(t *testing.T) {
 }
 
 func TestBindClusters(t *testing.T) {
-	settings := ecsSettings{clusterTag: tag}
-	cbt := testECSMeta.identifyTaggedItems(settings)
+	cbt := testECSMeta.identifyTaggedItems(tag)
 
 	clusters := bindClusters("tbn-cluster", testECSState, cbt)
 

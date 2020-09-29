@@ -1,0 +1,44 @@
+version: "3.7"
+
+services:
+  pause:
+    image: ubuntu:20.04
+    ports:
+      - "8080:9901"  # envoy
+    command:
+      - sleep
+      - inf
+  rotor-multi:
+    build:
+      context: ../../
+      dockerfile: dockerfile
+    command:
+      - sh
+      - -c
+      - |
+        envsubst < /rotor_template.json | cat > /cluster_template.json
+        exec /usr/bin/python3 -u /sbin/my_init -- /usr/local/bin/rotor.sh
+    volumes:
+      - ./files/cluster-template.json:/rotor_template.json
+      - ./files/rotor-multi-config.json:/etc/rotor-multi-config.json
+    env_file:
+      - ./files/local.env
+    depends_on:
+      - pause
+    network_mode: service:pause
+  envoy:
+    build:
+      context: ../envoy
+      dockerfile: dockerfile
+    image: envoy
+    environment:
+      - ENVOY_ROTOR_CLUSTER=tbn-xds
+      - ENVOY_ROTOR_HOST=127.0.0.1
+      - ENVOY_ROTOR_PORT=50000
+      - RESTART_EPOCH=0
+    depends_on:
+      - pause
+    network_mode: service:pause
+
+
+

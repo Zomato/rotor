@@ -33,12 +33,12 @@ const (
  	DescribeContainerInstancesWindowSz = 100
 )
 
-//go:generate $TBN_HOME/scripts/mockgen_internal.sh -type awsClient,ecsInterface,ec2Interface -source $GOFILE -destination mock_$GOFILE -package $GOPACKAGE --write_package_comment=false
+//go:generate $TBN_HOME/scripts/mockgen_internal.sh -type awsECSClient,ecsInterface,awsEC2Client -source $GOFILE -destination mock_$GOFILE -package $GOPACKAGE --write_package_comment=false
 
 type arn string
 
-// awsClient represents an adapter than handles making calls to AWS.
-type awsClient interface {
+// awsECSClient represents an adapter than handles making calls to AWS.
+type awsECSClient interface {
 	// ListClusters returns all clusters visible to ECS collector. It returns them
 	// mapped to their full ARN. An error is returned if encountered retrieving
 	// clusters from ECS.
@@ -98,24 +98,24 @@ type ecsInterface interface {
 		*ecs.DescribeContainerInstancesInput) (*ecs.DescribeContainerInstancesOutput, error)
 }
 
-// ec2Interface is an interface that allows us to mock an EC2 client see
+// awsEC2Client is an interface that allows us to mock an EC2 client see
 // github.com/aws/aws-sdk-go/service/ec2/api.go for method docs.
-type ec2Interface interface {
+type awsEC2Client interface {
 	DescribeInstances(*ec2.DescribeInstancesInput) (*ec2.DescribeInstancesOutput, error)
 }
 
 type awsAdapter struct {
 	ecs ecsInterface
-	ec2 ec2Interface
+	ec2 awsEC2Client
 
 	describeServicesWindowSz int
 	describeTasksWindowSz    int
  	describeContainerInstancesWindowSz int
 }
 
-var _ awsClient = awsAdapter{}
+var _ awsECSClient = awsAdapter{}
 
-func newAwsClient(ecs ecsInterface, ec2 ec2Interface) awsClient {
+func newAwsClient(ecs ecsInterface, ec2 awsEC2Client) awsECSClient {
 	return awsAdapter{ecs, ec2, DescribeServicesWindowSz, DescribeTasksWindowSz, DescribeContainerInstancesWindowSz}
 }
 

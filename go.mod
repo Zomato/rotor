@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/armon/go-metrics v0.3.3 // indirect
-	github.com/aws/aws-sdk-go v1.13.42
+	github.com/aws/aws-sdk-go v1.35.14
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
 	github.com/donovanhide/eventsource v0.0.0-20171031113327-3ed64d21fb0b // indirect
 	github.com/envoyproxy/go-control-plane v0.8.3
@@ -13,7 +13,6 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gambol99/go-marathon v0.7.1
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/go-ini/ini v1.36.0 // indirect
 	github.com/gogo/googleapis v1.1.0
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/mock v1.1.1
@@ -27,7 +26,6 @@ require (
 	github.com/hashicorp/memberlist v0.2.2 // indirect
 	github.com/hashicorp/serf v0.8.1 // indirect
 	github.com/honeycombio/libhoney-go v1.12.4 // indirect
-	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
@@ -37,7 +35,6 @@ require (
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/rs/xhandler v0.0.0-20170707052532-1eb70cf1520d // indirect
 	github.com/rs/xstats v0.0.0-20170813190920-c67367528e16 // indirect
-	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/spf13/pflag v1.0.1 // indirect
 	github.com/turbinelabs/api v0.0.0-20181025162322-13fb01976308
 	github.com/turbinelabs/cache v0.0.0-20181025162340-b1cdcedfeada
@@ -51,7 +48,6 @@ require (
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
 	google.golang.org/grpc v1.19.1
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/ini.v1 v1.56.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	k8s.io/api v0.0.0-20180308224125-73d903622b73
 	k8s.io/apimachinery v0.0.0-20180228050457-302974c03f7e

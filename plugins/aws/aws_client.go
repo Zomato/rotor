@@ -26,7 +26,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	ec2 "github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/sts"
 	tbnflag "github.com/turbinelabs/nonstdlib/flag"
+	"os"
 )
 
 // client represents the command-line flags specifying configuration of
@@ -98,7 +100,6 @@ func (ff *clientImpl) awsCredentials() *credentials.Credentials {
 	// awsSession on the call to `session.New()
 	defaultConfig := defaults.Config()
 	defaultHandlers := defaults.Handlers()
-
 	customProvider := &credentials.StaticProvider{
 		Value: credentials.Value{
 			AccessKeyID:     ff.awsAccessKeyID,
@@ -106,12 +107,22 @@ func (ff *clientImpl) awsCredentials() *credentials.Credentials {
 		},
 	}
 
+	webIdentityProvider := stscreds.NewWebIdentityRoleProvider(
+		sts.New(&session.Session{
+			Config:   defaultConfig,
+			Handlers: defaultHandlers,
+		}),
+		os.Getenv("AWS_ROLE_ARN"),
+		"rotor-sess-dev",
+		os.Getenv("AWS_WEB_IDENTITY_TOKEN_FILE"),
+	)
+
 	// Unfortunately AWS doesn't have a variable for its default providers.
 	// So this mimics the latest provider chain in the defaults package
 	// located at
 	// https://github.com/aws/aws-sdk-go/blob/d856824058f17a35c61cabdfb1c40559ce070cd9/aws/defaults/defaults.go#L95-L99
 	// This takes the default chain, and adds the `legacy` cli way to highest
-	// hierachy. Currently have an issue to address this in aws-sdk-go
+	// hierarchy. Currently have an issue to address this in aws-sdk-go
 	// https://github.com/aws/aws-sdk-go/issues/2051
 	return credentials.NewCredentials(
 		&credentials.ChainProvider{
@@ -120,6 +131,7 @@ func (ff *clientImpl) awsCredentials() *credentials.Credentials {
 				customProvider,
 				&credentials.EnvProvider{},
 				&credentials.SharedCredentialsProvider{Filename: "", Profile: ""},
+				webIdentityProvider,
 				defaults.RemoteCredProvider(*defaultConfig, defaultHandlers),
 			},
 		},

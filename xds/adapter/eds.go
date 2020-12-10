@@ -83,13 +83,12 @@ func (e eds) tbnClusterToEnvoyLoadAssignment(
 
 func mkEnvoyLbEndpoint(host string, port int, metadata tbnapi.Metadata) *envoyendpoint.LbEndpoint {
 	return &envoyendpoint.LbEndpoint{
-                HostIdentifier: &envoyendpoint.LbEndpoint_Endpoint{
-		        Endpoint: &envoyendpoint.Endpoint{
-		                Address: mkEnvoyAddress(host, port),
-		        },
-                },
-		HealthStatus: envoycore.HealthStatus_HEALTHY,
-		Metadata:     toEnvoyMetadata(metadata),
+		HostIdentifier: &envoyendpoint.LbEndpoint_Endpoint{
+			Endpoint: &envoyendpoint.Endpoint{
+				Address: mkEnvoyAddress(host, port),
+			},
+		},
+		Metadata: toEnvoyMetadata(metadata),
 	}
 }
 

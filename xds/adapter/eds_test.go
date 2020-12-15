@@ -97,7 +97,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
@@ -124,7 +123,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
@@ -151,7 +149,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
@@ -178,7 +175,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
@@ -214,8 +210,7 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
-							Metadata:     &envoycore.Metadata{},
+							Metadata: &envoycore.Metadata{},
 						},
 					},
 				},
@@ -240,7 +235,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
@@ -265,7 +259,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
@@ -292,7 +285,6 @@ func TestFullRequestFullClusterLoadAssignments(t *testing.T) {
 									},
 								},
 							},
-							HealthStatus: envoycore.HealthStatus_HEALTHY,
 							Metadata: &envoycore.Metadata{
 								FilterMetadata: map[string]*types.Struct{
 									"envoy.lb": {
